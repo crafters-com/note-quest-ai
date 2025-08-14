@@ -28,7 +28,7 @@ NoteQuest provides a clean starting point with:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/notequest.git
+   git clone https://github.com/crafters-com/note-quest-ai
    cd notequest
    ```
 
