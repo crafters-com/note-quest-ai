@@ -29,7 +29,7 @@ NoteQuest provides a clean starting point with:
 1. **Clone the repository**
    ```bash
    git clone https://github.com/crafters-com/note-quest-ai
-   cd notequest
+   cd note-quest-ai
    ```
 
 2. **Create and activate a virtual environment**
