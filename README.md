@@ -34,11 +34,11 @@ NoteQuest provides a clean starting point with:
 
 2. **Create and activate a virtual environment**
    ```bash
-   python -m venv venv
+   python -m venv env
     # On Windows
-    venv\Scripts\activate
+    env\Scripts\activate
     # On macOS/Linux
-    source venv/bin/activate
+    source env/bin/activate
    ```
 
 3. **Install dependencies**
