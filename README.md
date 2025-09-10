@@ -28,17 +28,17 @@ NoteQuest provides a clean starting point with:
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/your-username/notequest.git
-   cd notequest
+   git clone https://github.com/crafters-com/note-quest-ai
+   cd note-quest-ai
    ```
 
 2. **Create and activate a virtual environment**
    ```bash
-   python -m venv venv
+   python -m venv env
     # On Windows
-    venv\Scripts\activate
+    env\Scripts\activate
     # On macOS/Linux
-    source venv/bin/activate
+    source env/bin/activate
    ```
 
 3. **Install dependencies**
