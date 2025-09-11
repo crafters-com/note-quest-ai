@@ -1,0 +1,26 @@
+.header {
+  width: 100%;
+  height: 4.5rem; /* Altura fija para el header */
+  padding: 0 2rem;
+  background-color: var(--light-gray); /* O el color que prefieras */
+  border-bottom: 1px solid var(--off-white);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  /* Asegura que no se encoja */
+  flex-shrink: 0;
+}
+
+.pageTitle h3 {
+  font-family: var(--font-family-body);
+  font-weight: 700;
+  color: var(--dark-background);
+}
+
+.userControls {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
