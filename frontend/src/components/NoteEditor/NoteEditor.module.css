@@ -1,0 +1,38 @@
+.editorContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid var(--light-gray);
+}
+.toolbar button {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+.toolbar button.isActive {
+  color: var(--primary-color);
+}
+
+.editorContent {
+  flex-grow: 1;
+  padding: 1rem 2rem;
+  overflow-y: auto;
+}
+
+/* Estilos base para el contenido del editor */
+.editorContent:focus {
+  outline: none;
+}
+.editorContent p {
+  line-height: 1.6;
+}
+.editorContent h1, .editorContent h2 {
+  font-family: var(--font-family-headings);
+  margin: 1.5rem 0 0.5rem 0;
+}

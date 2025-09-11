@@ -1,0 +1,40 @@
+.notesLayout {
+  display: flex;
+  height: 100%; /* Ocupa toda la altura disponible en pageContent */
+}
+
+.noteListSidebar {
+  width: 240px;
+  border-right: 1px solid var(--light-gray);
+  padding: 1rem;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.noteListItem {
+  padding: 0.75rem;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.noteListItem:hover {
+  background-color: var(--light-gray);
+}
+.noteListItem.activeItem {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.editorArea {
+  flex-grow: 1;
+}
+
+.noNoteSelected {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: var(--neutral-gray);
+}
