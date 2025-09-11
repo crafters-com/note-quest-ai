@@ -1,35 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - NoteQuest</title>
+    <title>Registro - NoteQuest-AI</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
-
-    <!-- Navbar -->
-    <nav>
-        <a href="{% url 'home' %}">Home</a>
-        <a href="{% url 'about' %}">About</a>
-    </nav>
-
-    <!-- Main Content -->
-    <div class="content-container">
-        <h2>Register</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Sign up</button>
-        </form>
-        <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+    <div class="auth-container">
+        <div class="auth-left">
+            <div class="logo-container">
+                <img src="{% static 'logo.svg' %}" alt="NoteQuest-AI Logo" class="logo">
+                <h1 class="brand-name">NoteQuest-AI</h1>
+                <p class="brand-subtitle">Bienvenido a tu nuevo creador de notas favorito</p>
+            </div>
+        </div>
+        
+        <div class="auth-right">
+            <h2 class="auth-title">¡Bienvenido a NoteQuest!</h2>
+            
+            <form method="post">
+                {% csrf_token %}
+                
+                <div class="form-group {% if form.full_name.errors %}error{% endif %}">
+                    <label for="{{ form.full_name.id_for_label }}">{{ form.full_name.label }}</label>
+                    {{ form.full_name }}
+                    {% if form.full_name.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.full_name.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group {% if form.birth_date.errors %}error{% endif %}">
+                    <label for="{{ form.birth_date.id_for_label }}">{{ form.birth_date.label }}</label>
+                    {{ form.birth_date }}
+                    {% if form.birth_date.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.birth_date.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group {% if form.email.errors %}error{% endif %}">
+                    <label for="{{ form.email.id_for_label }}">{{ form.email.label }}</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.email.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group {% if form.username.errors %}error{% endif %}">
+                    <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.username.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group {% if form.password1.errors %}error{% endif %}">
+                    <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.password1.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                <div class="form-group {% if form.password2.errors %}error{% endif %}">
+                    <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}
+                        <ul class="errorlist">
+                            {% for error in form.password2.errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </div>
+                
+                {% if form.non_field_errors %}
+                    <ul class="errorlist">
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+                
+                <button type="submit" class="auth-button">Registrarse</button>
+            </form>
+            
+            <p style="margin-top: 30px; text-align: center;">
+                ¿Ya tienes cuenta? <a href="{% url 'login' %}" class="auth-link">Inicia sesión aquí</a>
+            </p>
+        </div>
     </div>
-
-    <!-- Footer -->
-    <footer>
-        <p>&copy; 2025 NoteQuest. All rights reserved. <a href="{% url 'about' %}">About us</a></p>
-    </footer>
-
 </body>
 </html>

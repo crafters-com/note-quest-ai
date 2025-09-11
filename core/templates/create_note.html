@@ -1,21 +1,149 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create Note</title>
+    <title>Crear Nota - NoteQuest-AI</title>
     {% load static %}
     <link rel="stylesheet" href="{% static 'styles.css' %}">
 </head>
 <body>
-    <div class="content-container">
-        <h2>Create a new note</h2>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Create Note</button>
-        </form>
-        <a href="{% url 'home' %}">Back to Home</a>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <img src="{% static 'logo.svg' %}" alt="NoteQuest-AI">
+                    <span class="sidebar-brand">NoteQuest-AI</span>
+                </div>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">
+                    <span>🏆</span>
+                    A1
+                </div>
+                <a href="#" class="nav-item">Verbo to be</a>
+                <a href="#" class="nav-item">Vocabulary</a>
+                <a href="#" class="nav-item">Asking questions</a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">
+                    <span>📚</span>
+                    A2
+                </div>
+                <a href="#" class="nav-item">Verbo to be</a>
+                <a href="#" class="nav-item">Vocabulary</a>
+                <a href="#" class="nav-item">Asking questions</a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">
+                    <span>🔍</span>
+                    B1
+                </div>
+                <a href="#" class="nav-item">Verbo to be</a>
+                <a href="#" class="nav-item">Vocabulary</a>
+                <a href="#" class="nav-item">Asking questions</a>
+            </div>
+            
+            <div style="position: absolute; bottom: 30px; left: 30px; right: 30px;">
+                <div class="nav-section-title expandable">
+                    <span>🌍</span>
+                    Inglés
+                    <span style="margin-left: auto;">⚙️</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="header-section">
+                <div class="header-breadcrumb">
+                    <a href="{% url 'home' %}" style="color: #8b9ba3; text-decoration: none;">🏠</a>
+                    <span style="margin: 0 10px;">></span>
+                    <span>Crear Nueva Nota</span>
+                </div>
+                <div class="header-actions">
+                    <div class="user-info">
+                        <div class="user-avatar">{{ request.user.full_name.0|upper }}</div>
+                        <span>{{ request.user.full_name }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="note-form-section">
+                <h1 style="color: #2d5356; font-size: 2.5rem; margin-bottom: 30px;">Crear Nueva Nota</h1>
+                
+                <div style="background: white; padding: 40px; border-radius: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="form-group {% if form.title.errors %}error{% endif %}" style="margin-bottom: 30px;">
+                            <label for="{{ form.title.id_for_label }}" style="display: block; margin-bottom: 10px; font-weight: 600; color: #2d5356; font-size: 1.1rem;">{{ form.title.label }}</label>
+                            <input type="text" 
+                                   name="{{ form.title.name }}" 
+                                   id="{{ form.title.id_for_label }}"
+                                   placeholder="{{ form.title.field.widget.attrs.placeholder }}"
+                                   value="{{ form.title.value|default:'' }}"
+                                   style="width: 100%; padding: 15px 20px; border: 2px solid #e1e8eb; border-radius: 10px; font-size: 1.1rem; transition: all 0.3s ease;"
+                                   required>
+                            {% if form.title.errors %}
+                                <ul class="errorlist">
+                                    {% for error in form.title.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="form-group {% if form.content.errors %}error{% endif %}" style="margin-bottom: 30px;">
+                            <label for="{{ form.content.id_for_label }}" style="display: block; margin-bottom: 10px; font-weight: 600; color: #2d5356; font-size: 1.1rem;">{{ form.content.label }}</label>
+                            <textarea name="{{ form.content.name }}" 
+                                      id="{{ form.content.id_for_label }}"
+                                      placeholder="{{ form.content.field.widget.attrs.placeholder }}"
+                                      rows="15"
+                                      style="width: 100%; padding: 20px; border: 2px solid #e1e8eb; border-radius: 10px; font-size: 1rem; line-height: 1.6; resize: vertical; transition: all 0.3s ease;"
+                                      required>{{ form.content.value|default:'' }}</textarea>
+                            {% if form.content.errors %}
+                                <ul class="errorlist">
+                                    {% for error in form.content.errors %}
+                                        <li>{{ error }}</li>
+                                    {% endfor %}
+                                </ul>
+                            {% endif %}
+                        </div>
+                        
+                        {% if form.non_field_errors %}
+                            <ul class="errorlist">
+                                {% for error in form.non_field_errors %}
+                                    <li>{{ error }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        
+                        <div style="display: flex; gap: 15px; margin-top: 40px;">
+                            <button type="submit" class="btn-primary" style="background: #4a7c7e; padding: 15px 30px; font-size: 1.1rem;">
+                                💾 Guardar Nota
+                            </button>
+                            <a href="{% url 'home' %}" class="btn-primary" style="background: #6c757d; padding: 15px 30px; font-size: 1.1rem; text-decoration: none;">
+                                ❌ Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+    
+    <style>
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4a7c7e;
+            box-shadow: 0 0 0 3px rgba(74, 124, 126, 0.1);
+        }
+    </style>
 </body>
 </html>
