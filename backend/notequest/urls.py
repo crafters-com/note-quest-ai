@@ -25,7 +25,7 @@ urlpatterns = [
     # API endpoints
     # path('api/auth/', include('users.urls')),
     # path('api/notebooks/', include('notebooks.urls')),
-    # path('api/notes/', include('notes.urls')),
+    path('api/notes/', include('notes.urls')),
     # path('api/files/', include('files.urls')),
 ]
 
