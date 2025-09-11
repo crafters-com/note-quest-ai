@@ -19,14 +19,22 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from rest_framework import routers
+from notebooks.views import NotebookViewSet
+
+router = routers.DefaultRouter()
+router.register(r'notebooks', NotebookViewSet, basename='notebook')
+
 urlpatterns = [
     path('admin/', admin.site.urls),
-    
+
     # API endpoints
-    # path('api/auth/', include('users.urls')),
     # path('api/notebooks/', include('notebooks.urls')),
-    # path('api/notes/', include('notes.urls')),
+    path('api/notes/', include('notes.urls')),
     # path('api/files/', include('files.urls')),
+
+    path('api/auth/', include('users.urls')),
+    path('api/', include(router.urls)),
 ]
 
 # Serve media files in development
