@@ -3,6 +3,7 @@ import AuthLayout from "@/layouts/AuthLayout";
 import LoginPage from "@/pages/LoginPage/LoginPage";
 import SignupPage from "@/pages/SignupPage/SignupPage";
 import MainLayout from "@/layouts/MainLayout";
+import ProtectedRoute from "@/router/ProtectedRoute";
 
 function App() {
   // El div wrapper se ha eliminado para que los layouts controlen todo el estilo
@@ -13,16 +14,18 @@ function App() {
       {/* Rutas de Autenticación */}
       <Route element={<AuthLayout />}>
         <Route path="login" element={<LoginPage />} />
-        <Route path="sign-up" element={<SignupPage />} />
+        <Route path="signup" element={<SignupPage />} />
       </Route>
 
       {/* Rutas Principales de la App */}
+      <Route element={<ProtectedRoute />}>
       <Route element={<MainLayout />}>
         <Route path="dashboard" element={<div>dashboard works</div>} />
         {/* <Route path="notes" element={<NotesPage />} /> */}
         <Route path="upload" element={<div>upload works</div>} />
         <Route path="quizzes" element={<div>Quizzes works</div>} />
         <Route path="profile" element={<div>Profile works</div>} />
+      </Route>
       </Route>
     </Routes>
   );

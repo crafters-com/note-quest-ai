@@ -1,16 +1,7 @@
-import Login from "@/components/features/auth/LoginForm/LoginForm";
-import type React from "react";
+import LoginForm from "@/components/features/auth/LoginForm";
 
-const LoginPage: React.FC = () => {
-  return (
-    <Login
-      email={""}
-      password={""}
-      showPassword={false}
-      onSubmit={() => {}}
-      onGoogleSignOn={() => {}}
-    />
-  );
+const LoginPage = () => {
+  return <LoginForm />;
 };
 
 export default LoginPage;
