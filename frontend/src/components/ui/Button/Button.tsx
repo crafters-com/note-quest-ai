@@ -1,9 +1,9 @@
 // components/ui/Button/Button.tsx
 import * as React from "react";
-import { Slot } from "@radix-ui/react-slot"; // Muy recomendado para el patrón asChild
+import { Slot } from "@radix-ui/react-slot";
 import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "../../../utils/cn"; // Importamos nuestra nueva utilidad
-import { buttonVariants } from "../../../utils/buttonUtils"; // Importamos las variantes de cva
+import { cn } from "../../../utils/cn";
+import { buttonVariants } from "../../../utils/buttonUtils";
 
 // Extendemos las props para incluir las variantes de cva
 export interface ButtonProps

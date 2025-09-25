@@ -1,6 +1,10 @@
 {
   "compilerOptions": {
     // --- Configuración Base del Proyecto ---
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
     "target": "ES6",
     "lib": ["dom", "dom.iterable", "esnext"],
     "jsx": "react-jsx", // Esencial para el nuevo JSX de React
