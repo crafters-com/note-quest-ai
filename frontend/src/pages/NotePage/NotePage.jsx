@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as noteService from '../../services/noteService';
-import NoteEditor from '../../components/NoteEditor/NoteEditor';
+import NoteEditor from '../../components/features/notes/NoteEditor/NoteEditor';
 import styles from './NotePage.module.css';
 
 function NotePage() {

@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    // --- Configuración Base del Proyecto ---
+    "target": "ES6",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "jsx": "react-jsx", // Esencial para el nuevo JSX de React
+
+    // --- Resolución de Módulos ---
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+
+    "allowJs": true,
+
+    "strict": true, // Activa todas las revisiones estrictas de tipos
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,
+
+    // --- Interoperabilidad con Módulos ---
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+
+    // --- Emisión de Archivos ---
+    "noEmit": true // TypeScript solo revisa, Vite/CRA compilan el código
+  },
+  // --- Archivos a Incluir ---
+  "include": ["src"], // Le dice a TypeScript que solo se preocupe por la carpeta 'src'
+  "exclude": ["node_modules"] // Excluye node_modules para evitar advertencias
+}

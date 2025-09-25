@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
-import * as noteService from '../../services/noteService';
+import * as noteService from '../../../../services/noteService';
 import styles from './NoteEditor.module.css';
 
 // Asumimos que tienes un componente Toolbar aquí
