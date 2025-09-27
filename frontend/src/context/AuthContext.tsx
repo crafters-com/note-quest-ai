@@ -1,6 +1,6 @@
 // src/context/AuthContext.tsx
 import React, { createContext, useState, useContext, useEffect, type ReactNode } from 'react';
-import { authService } from '@/services/authService';
+import { authService, type User } from '@/services/authService';
 import apiClient from '@/services/api'; // Importa tu apiClient
 
 // El valor inicial puede ser lo que necesites, aquí usamos un objeto por claridad
@@ -10,6 +10,7 @@ interface AuthProviderProps {
 
 interface AuthContextType {
   isAuthenticated: boolean;
+  user: User | null;
   token: string | null;
   login: (username: string, password: string) => Promise<any>; // Parámetros tipados
   logout: () => void;
@@ -18,6 +19,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   isAuthenticated: false,
+  user: null,
   token: null,
   login: async (username, password) => {},
   logout: () => {},
@@ -27,6 +29,7 @@ const AuthContext = createContext<AuthContextType>({
 // 2. Creamos el Componente Proveedor
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [token, setToken] = useState(localStorage.getItem('authToken'));
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   // Efecto para configurar el token en apiClient al cargar la app
@@ -43,6 +46,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     try {
       const data = await authService.login(username, password);
       setToken(data.token); // Actualiza el estado de React
+      setUser(data.user); // Guarda el usuario
       return data;
     } catch (error) {
       // Limpiamos el estado en caso de error
@@ -53,12 +57,14 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = () => {
     authService.logout();
-    setToken(null); // Actualiza el estado de React
+    setToken(null);
+    setUser(null); 
   };
 
   // El valor que proveeremos a los componentes hijos
   const value = {
-    isAuthenticated: !!token, // Convierte el token (o null) a un booleano
+    isAuthenticated: !!token,
+    user,
     token,
     login,
     logout,

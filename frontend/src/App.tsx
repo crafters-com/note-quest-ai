@@ -19,13 +19,13 @@ function App() {
 
       {/* Rutas Principales de la App */}
       <Route element={<ProtectedRoute />}>
-      <Route element={<MainLayout />}>
-        <Route path="dashboard" element={<div>dashboard works</div>} />
-        {/* <Route path="notes" element={<NotesPage />} /> */}
-        <Route path="upload" element={<div>upload works</div>} />
-        <Route path="quizzes" element={<div>Quizzes works</div>} />
-        <Route path="profile" element={<div>Profile works</div>} />
-      </Route>
+        <Route element={<MainLayout />}>
+          <Route path="dashboard" element={<div>dashboard works</div>} />
+          {/* <Route path="notes" element={<NotesPage />} /> */}
+          <Route path="upload" element={<div>upload works</div>} />
+          <Route path="quizzes" element={<div>Quizzes works</div>} />
+          <Route path="profile" element={<div>Profile works</div>} />
+        </Route>
       </Route>
     </Routes>
   );

@@ -3,6 +3,14 @@ import type { AxiosResponse } from "axios";
 
 // --- Interfaces para definir la forma de los datos ---
 
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+}
+
 interface SignUpData {
   first_name: string; 
   last_name: string;
@@ -14,8 +22,7 @@ interface SignUpData {
 
 interface LoginResponse {
   token: string;
-  // Puedes añadir aquí otros datos que devuelva tu API, como el usuario
-  // user: { id: number; username: string; email: string; };
+  user: User; // <-- Esperamos recibir el objeto de usuario aquí
 }
 
 // --- El servicio de autenticación con tipos ---

@@ -1,4 +1,6 @@
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button/Button";
+
 import {
   Sheet,
   SheetContent,
@@ -51,6 +53,11 @@ const navigation = [
 
 const SidebarContent: React.FC = () => {
   const pathname = useLocation();
+  const authData = useAuth(); 
+  console.log("Datos del AuthContext en Sidebar:", authData); 
+  const { user, logout } = authData;
+  
+
   return (
     <div className="flex h-full flex-col">
       {/* Logo */}
@@ -98,11 +105,11 @@ const SidebarContent: React.FC = () => {
             <User className="h-4 w-4 text-primary" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground truncate">
-              Usuario
+            <p className="truncate text-sm font-medium text-foreground">
+              {user?.first_name || user?.username || 'Usuario'} 
             </p>
-            <p className="text-xs text-muted-foreground truncate">
-              usuario@ejemplo.com
+            <p className="truncate text-xs text-muted-foreground">
+              {user?.email || 'email@ejemplo.com'}
             </p>
           </div>
         </div>
@@ -110,6 +117,7 @@ const SidebarContent: React.FC = () => {
           variant="outline"
           size="sm"
           className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+          onClick={logout}
         >
           <LogOut className="h-4 w-4" />
           Cerrar sesión
