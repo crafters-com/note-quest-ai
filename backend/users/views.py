@@ -59,3 +59,10 @@ class LogoutView(APIView):
     def post(self, request):
         request.user.auth_token.delete()
         return Response({"success": "Sesión cerrada"})
+
+class UserDetailView(APIView):
+    permission_classes = [permissions.IsAuthenticated] # Solo usuarios con token pueden acceder
+
+    def get(self, request, *args, **kwargs):
+        serializer = UserSerializer(request.user)
+        return Response(serializer.data)
