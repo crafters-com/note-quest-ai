@@ -1,7 +1,7 @@
 import { Route, Routes } from "react-router-dom";
 import AuthLayout from "@/layouts/AuthLayout";
-import LoginPage from "@/pages/LoginPage/LoginPage";
-import SignupPage from "@/pages/SignupPage/SignupPage";
+import LoginPage from "@/pages/LoginPage";
+import SignupPage from "@/pages/SignupPage";
 import NotesPage from "@/pages/NotesPage";
 import NotebooksPage from "@/pages/NotebooksPage";
 import MainLayout from "@/layouts/MainLayout";
