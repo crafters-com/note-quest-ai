@@ -1,4 +1,4 @@
-import { MobileSidebar, Sidebar } from "@/components/ui/Sidebar/Sidebar";
+import { MobileSidebar, Sidebar } from "@/components/ui/Sidebar";
 import { Outlet } from "react-router-dom";
 
 // --- Sub-componente para la cabecera en móviles ---

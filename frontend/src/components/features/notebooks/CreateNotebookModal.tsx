@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { notebookService, type NotebookData, Notebook } from "@/services/notebookService";
 
-import { Button } from "@/components/ui/Button/Button";
-import { Input } from "@/components/ui/Input/Input";
-import { Label } from "@/components/ui/Label/Label";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/Dialog";
 
 interface CreateNotebookModalProps {

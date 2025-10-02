@@ -1,19 +1,19 @@
 import { Calendar, Download, Eye, FileText, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/Button/Button";
+import { Button } from "@/components/ui/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/Dropdown/Dropdown";
+} from "@/components/ui/Dropdown";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/Card/Card";
-import { Badge } from "@/components/ui/Badge/Badge";
+} from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
 
 export interface Note {
   id: number;

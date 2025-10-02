@@ -1,12 +1,12 @@
-import { Card, CardContent } from "@/components/ui/Card/Card";
-import { Badge } from "@/components/ui/Badge/Badge";
-import { Button } from "@/components/ui/Button/Button";
+import { Card, CardContent } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/Dropdown/Dropdown";
+} from "@/components/ui/Dropdown";
 import { Download, Eye, FileText, Trash2 } from "lucide-react";
 import type { Note } from "@/components/features/notes/NoteCard";
 

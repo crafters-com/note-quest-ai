@@ -1,13 +1,13 @@
 import { useAuth } from "@/context/AuthContext";
-import { Button } from "@/components/ui/Button/Button";
+import { Button } from "@/components/ui/Button";
 
 import {
   Sheet,
   SheetContent,
   SheetTitle,
   SheetTrigger,
-} from "@/components/ui/Sheet/Sheet";
-import { cn } from "../../../utils/cn";
+} from "@/components/ui/Sheet";
+import { cn } from "@/utils/cn";
 import {
   BookOpen,
   Brain,
@@ -30,8 +30,8 @@ const navigation = [
     icon: Home,
   },
   {
-    name: "Mis Apuntes",
-    href: "/notes",
+    name: "Mis notebooks",
+    href: "/notebooks",
     icon: BookOpen,
   },
   {

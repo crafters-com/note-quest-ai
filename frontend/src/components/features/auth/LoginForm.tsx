@@ -3,17 +3,17 @@ import { useState } from "react";
 import type React from "react";
 import { useAuth } from "@/context/AuthContext";
 
-import { Button } from "@/components/ui/Button/Button";
+import { Button } from "@/components/ui/Button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/Card/Card";
-import { Input } from "@/components/ui/Input/Input";
-import { Separator } from "@/components/ui/Separator/Separator";
-import { Label } from "@/components/ui/Label/Label";
+} from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Separator } from "@/components/ui/Separator";
+import { Label } from "@/components/ui/Label";
 import { Mail, Lock, EyeOff, Eye } from "lucide-react";
 
 const LoginForm = () => {

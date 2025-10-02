@@ -4,11 +4,11 @@ import { useData } from "@/hooks/useData";
 import { notebookService, type Notebook } from "@/services/notebookService";
 
 // --- Tus componentes de UI ---
-import { Button } from "@/components/ui/Button/Button";
-import { Card, CardContent } from "@/components/ui/Card/Card";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent } from "@/components/ui/Card";
 import { CreateNotebookModal } from "@/components/features/notebooks/CreateNotebookModal";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/Dropdown/Dropdown";
-import { Input } from "@/components/ui/Input/Input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/Dropdown";
+import { Input } from "@/components/ui/Input";
 import { Filter, Grid3X3, List, Plus, Search, Folder, Tag } from "lucide-react";
 
 // --- Componentes para mostrar cada Notebook ---

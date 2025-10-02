@@ -1,14 +1,14 @@
 import { notebookService } from '@/services/notebookService';
 
-import {Card, CardContent} from "@/components/ui/Card/Card";
-import { Button } from "@/components/ui/Button/Button";
+import {Card, CardContent} from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/Dropdown/Dropdown";
-import { Input } from "@/components/ui/Input/Input";
+} from "@/components/ui/Dropdown";
+import { Input } from "@/components/ui/Input";
 import {
   Calendar,
   FileText,

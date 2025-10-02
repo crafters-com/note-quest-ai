@@ -4,17 +4,17 @@ import { authService } from "@/services/authService";
 import axios from "axios";
 
 // --- Importamos todos tus componentes de UI ---
-import { Button } from "@/components/ui/Button/Button";
+import { Button } from "@/components/ui/Button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/Card/Card";
-import { Input } from "@/components/ui/Input/Input";
-import { Separator } from "@/components/ui/Separator/Separator";
-import { Label } from "@/components/ui/Label/Label";
+} from "@/components/ui/Card";
+import { Input } from "@/components/ui/Input";
+import { Separator } from "@/components/ui/Separator";
+import { Label } from "@/components/ui/Label";
 import { Mail, Lock, EyeOff, Eye, User } from "lucide-react";
 
 const SignUpForm = () => {

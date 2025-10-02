@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
-import { Button } from "@/components/ui/Button/Button";
+import { Button } from "@/components/ui/Button";
 import { Plus } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/Card/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 
 
 const NoteListPage = () => {
