@@ -1,4 +1,4 @@
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, Navigate } from "react-router-dom";
 import AuthLayout from "@/layouts/AuthLayout";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
@@ -13,9 +13,9 @@ function App() {
   // El div wrapper se ha eliminado para que los layouts controlen todo el estilo
   return (
     <Routes>
-      <Route index element={<p>Home</p>} />
 
       {/* Rutas de Autenticación */}
+      <Route index element={<Navigate to="/login" replace />} />
       <Route element={<AuthLayout />}>
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
