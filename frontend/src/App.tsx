@@ -4,6 +4,7 @@ import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
 import NotesPage from "@/pages/NotesPage";
 import NotebooksPage from "@/pages/NotebooksPage";
+import DashboardPage from "@/pages/DashboardPage";
 import MainLayout from "@/components/features/layouts/MainLayout";
 import ProtectedRoute from "@/router/ProtectedRoute";
 import NoteListPage from "@/pages/NoteListPage";
@@ -25,7 +26,7 @@ function App() {
       {/* Rutas Principales de la App */}
       <Route element={<ProtectedRoute />}>
         <Route element={<NotebookProvider><MainLayout /></NotebookProvider>}>
-          <Route path="dashboard" element={<div>dashboard works</div>} />
+          <Route path="dashboard" element={<DashboardPage />} />
           <Route path="notes" element={<NotesPage />} />
           <Route path="notebooks" element={<NotebooksPage />} />
           <Route path="notebooks/:notebookId/notes" element={<NoteListPage />} />
