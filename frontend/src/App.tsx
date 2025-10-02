@@ -1,10 +1,10 @@
 import { Route, Routes, Navigate } from "react-router-dom";
-import AuthLayout from "@/layouts/AuthLayout";
+import AuthLayout from "@/components/features/layouts/AuthLayout";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
 import NotesPage from "@/pages/NotesPage";
 import NotebooksPage from "@/pages/NotebooksPage";
-import MainLayout from "@/layouts/MainLayout";
+import MainLayout from "@/components/features/layouts/MainLayout";
 import ProtectedRoute from "@/router/ProtectedRoute";
 import NoteListPage from "@/pages/NoteListPage";
 import NoteEditorPage from "@/pages/NoteEditorPage";

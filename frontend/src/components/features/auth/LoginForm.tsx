@@ -17,7 +17,7 @@ import { Label } from "@/components/ui/Label/Label";
 import { Mail, Lock, EyeOff, Eye } from "lucide-react";
 
 const LoginForm = () => {
-  const [username, setUsername] = useState(""); // Usamos 'username' como espera el backend
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -68,7 +68,7 @@ const LoginForm = () => {
               <Input
                 id="username"
                 type="text"
-                placeholder="tu-usuario"
+                placeholder="Tu usuario o correo"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="h-11 border-border bg-input pl-10 focus:border-primary focus:ring-ring"
@@ -86,7 +86,7 @@ const LoginForm = () => {
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Tu contraseña"
+                placeholder="*********"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="h-11 border-border bg-input pl-10 pr-10 focus:border-primary focus:ring-ring"
