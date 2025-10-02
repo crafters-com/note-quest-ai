@@ -1,5 +1,6 @@
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/Button";
+import { NotebookDropdown } from "@/components/features/notebooks/NotebookDropdown";
 
 import {
   Sheet,
@@ -21,7 +22,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
-import { Link, useLocation } from "react-router";
+import { Link, useLocation } from "react-router-dom";
 
 const navigation = [
   {
@@ -98,30 +99,29 @@ const SidebarContent: React.FC = () => {
         })}
       </nav>
 
-      {/* User section */}
-      <div className="border-t p-3">
-        <div className="flex items-center gap-3 rounded-lg px-3 py-2 mb-2">
-          <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
-            <User className="h-4 w-4 text-primary" />
+      {/* Notebooks section */}
+      <div className="border-t">
+        <div className="py-2">
+          <div className="px-3 py-1">
+            <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+              Notebook Activo
+            </span>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="truncate text-sm font-medium text-foreground">
-              {user?.first_name || user?.username || 'Usuario'} 
-            </p>
-            <p className="truncate text-xs text-muted-foreground">
-              {user?.email || 'email@ejemplo.com'}
-            </p>
-          </div>
+          <NotebookDropdown />
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
-          onClick={logout}
-        >
-          <LogOut className="h-4 w-4" />
-          Cerrar sesión
-        </Button>
+        
+        {/* User actions */}
+        <div className="border-t p-3">
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+            onClick={logout}
+          >
+            <LogOut className="h-4 w-4" />
+            Cerrar sesión
+          </Button>
+        </div>
       </div>
     </div>
   );

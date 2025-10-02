@@ -8,6 +8,7 @@ import MainLayout from "@/components/features/layouts/MainLayout";
 import ProtectedRoute from "@/router/ProtectedRoute";
 import NoteListPage from "@/pages/NoteListPage";
 import NoteEditorPage from "@/pages/NoteEditorPage";
+import { NotebookProvider } from "@/context/NotebookContext";
 
 function App() {
   // El div wrapper se ha eliminado para que los layouts controlen todo el estilo
@@ -23,7 +24,7 @@ function App() {
 
       {/* Rutas Principales de la App */}
       <Route element={<ProtectedRoute />}>
-        <Route element={<MainLayout />}>
+        <Route element={<NotebookProvider><MainLayout /></NotebookProvider>}>
           <Route path="dashboard" element={<div>dashboard works</div>} />
           <Route path="notes" element={<NotesPage />} />
           <Route path="notebooks" element={<NotebooksPage />} />
