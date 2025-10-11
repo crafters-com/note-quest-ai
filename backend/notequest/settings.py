@@ -139,16 +139,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-<<<<<<< HEAD:notequest/settings.py
-AUTH_USER_MODEL = 'core.CustomUser'
-LOGIN_URL = '/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/login/'
-
-# Language and timezone
-LANGUAGE_CODE = 'es-es'
-TIME_ZONE = 'America/Bogota'
-=======
 # Custom User Model
 AUTH_USER_MODEL = 'users.CustomUser'
 
@@ -185,4 +175,3 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 # Allowed file types for uploads
 ALLOWED_FILE_TYPES = ['pdf', 'docx', 'png', 'jpg', 'jpeg', 'txt', 'md']
 MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
->>>>>>> main:backend/notequest/settings.py
