@@ -1,13 +1,13 @@
-import { useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useData } from "@/hooks/useData";
 import { noteService } from "@/services/noteService";
-import { useEditor, EditorContent } from '@tiptap/react';
-import StarterKit from '@tiptap/starter-kit';
 import { useDebounce } from "@/hooks/useDebounce";
+import MarkdownNoteEditor from "@/components/features/notes/MarkdownNoteEditor";
 
 const NoteEditorPage = () => {
   const { noteId } = useParams<{ noteId: string }>();
+  const navigate = useNavigate();
   const numericId = parseInt(noteId!, 10);
 
   // Carga los datos iniciales de la nota
@@ -18,62 +18,243 @@ const NoteEditorPage = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
   
-  const debouncedTitle = useDebounce(title, 1000);
-  const debouncedContent = useDebounce(content, 1000);
+  const debouncedTitle = useDebounce(title, 500);
+  const debouncedContent = useDebounce(content, 500);
+  
+  // Ref para trackear si hay cambios pendientes
+  const hasUnsavedChanges = useRef(false);
 
-  // 4. Configura el editor TipTap
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: content,
-    // 5. Conecta el editor al estado local 'content'
-    onUpdate: ({ editor }) => {
-      setContent(editor.getHTML());
-    },
-    editorProps: {
-      attributes: {
-        class: 'prose dark:prose-invert focus:outline-none max-w-full min-h-[50vh]',
-      },
-    },
-  });
-
-  useEffect(() => {
-    if (initialNote) {
-      setTitle(initialNote.title);
-      setContent(initialNote.content || "");
-      editor?.commands.setContent(initialNote.content || "");
-    }
-  }, [initialNote, editor]);
-
-  useEffect(() => {
-    // No hacer nada si los datos iniciales aún no han cargado
+  // Función para guardar la nota
+  const saveNote = useCallback(async (forceTitle?: string, forceContent?: string) => {
     if (!initialNote) return;
     
-    // Comprueba si el título o el contenido han cambiado realmente
-    if (debouncedTitle !== initialNote.title || debouncedContent !== initialNote.content) {
-      console.log("Guardando cambios...");
-      noteService.updateNote(numericId, {
-        title: debouncedTitle,
-        content: debouncedContent,
-        notebook: initialNote.notebook, // El notebook no cambia
-      }).catch(err => console.error("Error al auto-guardar:", err));
+    const titleToSave = forceTitle !== undefined ? forceTitle : title;
+    const contentToSave = forceContent !== undefined ? forceContent : content;
+    
+    // Validación: no guardar si el título está vacío
+    if (!titleToSave || titleToSave.trim() === '') {
+      return;
     }
-  }, [debouncedTitle, debouncedContent]); // Se ejecuta solo cuando los valores "debounceados" cambian
+    
+    // Solo guardar si hay cambios reales
+    if (titleToSave === initialNote.title && contentToSave === initialNote.content) {
+      return;
+    }
+    
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      await noteService.updateNote(numericId, {
+        title: titleToSave,
+        content: contentToSave,
+      });
+      setLastSaved(new Date());
+      hasUnsavedChanges.current = false;
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.error || err.message || "Error al guardar";
+      setSaveError(errorMessage);
+    } finally {
+      setIsSaving(false);
+    }
+  }, [title, content, initialNote, numericId]);
 
+  // Actualiza el estado local cuando se cargan los datos iniciales
+  useEffect(() => {
+    if (initialNote) {
+      const noteTitle = initialNote.title || "Nota sin título";
+      setTitle(noteTitle);
+      setContent(initialNote.content || "");
+      setLastSaved(new Date(initialNote.updated_at));
+    }
+  }, [initialNote]);
 
-  if (loading) return <div>Cargando nota...</div>;
-  if (error) return <div className="text-destructive">{error}</div>;
+  // Trackear cambios para el flag de unsaved
+  useEffect(() => {
+    if (initialNote && title && content !== undefined) {
+      hasUnsavedChanges.current = 
+        title !== initialNote.title || content !== initialNote.content;
+    }
+  }, [title, content, initialNote]);
+
+  // Auto-guardado cuando cambian los valores debouncedos
+  useEffect(() => {
+    if (!initialNote) return;
+    
+    // Validación: asegurar que el título no esté vacío
+    if (!debouncedTitle || debouncedTitle.trim() === '') {
+      return;
+    }
+    
+    if (debouncedTitle !== initialNote.title || debouncedContent !== initialNote.content) {
+      saveNote(debouncedTitle, debouncedContent);
+    }
+  }, [debouncedTitle, debouncedContent, initialNote, saveNote]);
+
+  // Guardar antes de salir de la página
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges.current) {
+        // Guardar inmediatamente sin debounce
+        saveNote();
+        
+        // Mostrar advertencia al usuario
+        e.preventDefault();
+        e.returnValue = '';
+        return '';
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && hasUnsavedChanges.current) {
+        // Página se está ocultando, guardar inmediatamente
+        saveNote();
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [saveNote]);
+
+  // Atajo de teclado para guardar (Ctrl+S)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        if (hasUnsavedChanges.current) {
+          saveNote();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [saveNote]);
+
+  // Función para manejar blur del título (guardar inmediatamente)
+  const handleTitleBlur = () => {
+    if (hasUnsavedChanges.current) {
+      saveNote();
+    }
+  };
+
+  // Función para manejar blur del editor (guardar inmediatamente)
+  const handleEditorBlur = () => {
+    if (hasUnsavedChanges.current) {
+      saveNote();
+    }
+  };
+
+  // Función para volver al notebook
+  const handleGoBack = () => {
+    if (initialNote) {
+      navigate(`/notebooks/${initialNote.notebook}/notes`);
+    } else {
+      navigate('/notebooks');
+    }
+  };
+
+  if (loading) return (
+    <div className="p-4 md:p-8 flex items-center justify-center">
+      <div className="text-muted-foreground">Cargando nota...</div>
+    </div>
+  );
+  if (error) return (
+    <div className="p-4 md:p-8">
+      <div className="text-destructive">Error: {error}</div>
+    </div>
+  );
+
+  // No renderizar el editor hasta que los datos estén completamente cargados
+  if (!initialNote || !title) {
+    return (
+      <div className="p-4 md:p-8 flex items-center justify-center">
+        <div className="text-muted-foreground">Preparando editor...</div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 md:p-8">
+    <div className="p-4 md:p-8 relative">
+      {/* Barra superior con botón de volver */}
+      <div className="flex items-center gap-4 mb-6">
+        <button
+          onClick={handleGoBack}
+          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Volver
+        </button>
+      </div>
+
       <input
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        className="text-4xl font-bold bg-transparent focus:outline-none w-full mb-4"
+        onBlur={handleTitleBlur}
+        className="text-4xl font-bold bg-transparent focus:outline-none w-full mb-4 border-none placeholder:text-muted-foreground"
         placeholder="Título de la nota"
       />
-      <EditorContent editor={editor} />
+      
+      <div onBlur={handleEditorBlur}>
+        <MarkdownNoteEditor
+          content={content}
+          onChange={setContent}
+          placeholder="Comienza a escribir tu nota en Markdown..."
+          className="min-h-[60vh]"
+        />
+      </div>
+
+      {/* Indicador de estado flotante en la esquina inferior derecha */}
+      <div className="fixed bottom-4 right-4 z-50">
+        {isSaving && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg shadow-md border border-blue-200">
+            <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-sm font-medium">Guardando...</span>
+          </div>
+        )}
+        
+        {saveError && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-red-100 text-red-700 rounded-lg shadow-md border border-red-200">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span className="text-sm font-medium">Error al guardar</span>
+          </div>
+        )}
+        
+        {!isSaving && !saveError && hasUnsavedChanges.current && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-orange-100 text-orange-700 rounded-lg shadow-md border border-orange-200">
+            <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
+            <span className="text-sm font-medium">Sin guardar</span>
+            <button
+              onClick={() => saveNote()}
+              className="ml-2 px-2 py-1 text-xs bg-orange-200 hover:bg-orange-300 text-orange-700 rounded transition-colors"
+            >
+              Guardar
+            </button>
+          </div>
+        )}
+        
+        {!isSaving && !saveError && !hasUnsavedChanges.current && lastSaved && (
+          <div className="flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-lg shadow-md border border-green-200">
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="text-sm font-medium">Guardado {lastSaved.toLocaleTimeString()}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

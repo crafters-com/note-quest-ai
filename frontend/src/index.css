@@ -70,4 +70,82 @@
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
+
+  /* Mejorar el styling de listas en el editor MDX */
+  .prose ol {
+    list-style-type: decimal;
+    padding-left: 1.5rem;
+  }
+  
+  .prose ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+  }
+  
+  .prose ol > li,
+  .prose ul > li {
+    margin-bottom: 0.25rem;
+    position: relative;
+  }
+
+  /* Asegurar que los números y puntos se vean claramente */
+  .prose ol > li::marker,
+  .prose ul > li::marker {
+    color: hsl(var(--primary));
+    font-weight: 600;
+  }
+
+  /* Arreglar posicionamiento de modales del MDX Editor */
+  [data-floating-ui-portal] {
+    z-index: 9999 !important;
+  }
+
+  /* Modal de link dialog */
+  [role="dialog"] {
+    z-index: 9999 !important;
+    position: fixed !important;
+  }
+
+  /* Asegurar que los dropdowns del editor estén por encima de todo */
+  .mdxeditor [role="menu"],
+  .mdxeditor [role="listbox"],
+  .mdxeditor [data-radix-popper-content-wrapper] {
+    z-index: 9999 !important;
+  }
+
+  /* Arreglar el posicionamiento específico de todos los dialogs */
+  .mdxeditor-link-dialog,
+  .mdxeditor-table-editor,
+  .mdxeditor-image-dialog {
+    z-index: 9999 !important;
+    position: fixed !important;
+    transform: translate(-50%, -50%) !important;
+    left: 50% !important;
+    top: 50% !important;
+  }
+
+  /* Mejorar el styling del dialog de imagen */
+  .mdxeditor-image-dialog {
+    background: hsl(var(--card)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    border-radius: 0.5rem !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+    max-width: 400px !important;
+    width: 90vw !important;
+  }
+
+  /* Styling para input de file */
+  .mdxeditor-image-dialog input[type="file"] {
+    border: 2px dashed hsl(var(--border)) !important;
+    border-radius: 0.5rem !important;
+    padding: 1rem !important;
+    background: hsl(var(--muted)) !important;
+    cursor: pointer !important;
+  }
+
+  .mdxeditor-image-dialog input[type="file"]:hover {
+    border-color: hsl(var(--primary)) !important;
+    background: hsl(var(--muted))/80 !important;
+  }
 }
