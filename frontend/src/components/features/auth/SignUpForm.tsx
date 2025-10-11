@@ -83,7 +83,7 @@ const SignUpForm = () => {
   };
   
   return (
-    <Card className="w-full max-w-md border-0 bg-card/95 shadow-xl backdrop-blur-sm">
+    <Card className="w-full max-w-md border-0 bg-white/50 shadow-xl backdrop-blur-sm">
       <CardHeader className="space-y-2 text-center">
         <CardTitle className="text-2xl font-bold">Crear Cuenta</CardTitle>
         <CardDescription className="text-muted-foreground">
@@ -202,7 +202,7 @@ const SignUpForm = () => {
             <Separator />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">O regístrate con</span>
+            <span className="bg-card px-2 text-muted-foreground rounded-md">O regístrate con</span>
           </div>
         </div>
 

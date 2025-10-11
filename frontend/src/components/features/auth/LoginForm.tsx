@@ -49,7 +49,7 @@ const LoginForm = () => {
   };
 
   return (
-    <Card className="w-full max-w-md border-0 bg-card/95 shadow-xl backdrop-blur-sm">
+    <Card className="w-full max-w-md border-0 bg-white/50 shadow-xl backdrop-blur-sm">
       <CardHeader className="space-y-2 text-center">
         <CardTitle className="text-2xl font-bold">Iniciar Sesión</CardTitle>
         <CardDescription className="text-muted-foreground">
@@ -129,11 +129,11 @@ const LoginForm = () => {
           <div className="absolute inset-0 flex items-center">
             <Separator className="w-full" />
           </div>
-          <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground">
+            <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-white px-2 text-muted-foreground rounded-md">
               O continúa con
             </span>
-          </div>
+            </div>
         </div>
 
         <Button
