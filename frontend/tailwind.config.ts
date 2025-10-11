@@ -12,7 +12,7 @@ const config: Config = {
         background: "oklch(0.97 0.01 250)",
         foreground: "oklch(0.18 0.04 250)",
         primary: {
-          DEFAULT: "oklch(0.41 0.07 182)",
+          DEFAULT: "#095256", 
           foreground: "oklch(0.98 0.01 90)",
         },
         secondary: {
