@@ -1,0 +1,34 @@
+# Archivo .gitignore para el frontend (React + Vite)
+
+# Dependencias y logs
+node_modules/
+npm-debug.log*
+yarn-error.log*
+pnpm-lock.yaml
+
+# Archivos de build y distribución
+dist/
+.vite/
+*.local
+
+# Variables de entorno
+# Nunca subas tus archivos .env con secretos o contraseñas.
+# Es buena práctica subir un archivo de ejemplo.
+.env
+.env.local
+.env.*.local
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos del editor de código
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Reportes de tests
+coverage/

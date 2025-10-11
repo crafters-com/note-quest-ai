@@ -1,0 +1,19 @@
+:root {
+  /* Paleta de Colores Principal */
+  --primary-color: #095256;    /* Un verde azulado oscuro, ideal para elementos principales y llamados a la acción. */
+  --secondary-color: #F9DA58;  /* Un amarillo vibrante, perfecto para resaltar elementos importantes. */
+
+  /* Paleta de Soporte y Neutros */
+  --dark-background: #1B1725; /* Un color casi negro, excelente para fondos oscuros o texto con alto contraste. */
+  --neutral-gray: #B7B8BA;    /* Un gris medio, útil para textos secundarios o bordes. */
+  --light-gray: #DBD8CB;      /* Un gris claro con tonos cálidos, bueno para fondos de secciones o tarjetas. */
+  --off-white: #E9F1F7;        /* Un blanco roto, ideal como color de fondo principal para un look suave. */
+
+  /* Paleta de Tipografía */
+  --font-family-headings: 'Inter', sans-serif; /* Para títulos */
+  --font-family-body: 'Figtree', sans-serif; /* Para texto normal */
+
+  /* Variables de Fuente y Espaciado */
+  --base-font-size: 1rem;
+  --spacing-unit: 8px;
+}

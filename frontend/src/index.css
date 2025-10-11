@@ -1,0 +1,73 @@
+/* 1. Inyecta los estilos base, de componentes y utilidades de Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 2. Define todas tus variables y estilos base personalizados en un solo bloque */
+@layer base {
+  :root {
+    --radius: 0.65rem;
+
+    /* Base / fondo */
+    --background: oklch(0.97 0.01 250);
+    --foreground: oklch(0.18 0.04 250);
+
+    /* Card / Popover */
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.18 0.04 250);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.18 0.04 250);
+
+    /* Primary */
+    --primary: oklch(0.41 0.07 182);
+    --primary-foreground: oklch(0.98 0.01 90);
+
+    /* Secondary */
+    --secondary: oklch(0.87 0.15 95);
+    --secondary-foreground: oklch(0.2 0.02 90);
+
+    /* Muted / Accent */
+    --muted: oklch(0.95 0.01 250);
+    --muted-foreground: oklch(0.35 0.02 250);
+    --accent: oklch(0.95 0.01 250);
+    --accent-foreground: oklch(0.2 0.02 250);
+
+    /* Destructive */
+    --destructive: oklch(0.55 0.2 25);
+    --destructive-foreground: oklch(0.98 0 0);
+
+    /* Border / Input / Ring */
+    --border: oklch(0.9 0.01 250);
+    --input: oklch(0.9 0.01 250);
+    --ring: oklch(0.41 0.07 182);
+  }
+
+  .dark {
+    --background: oklch(0.18 0.04 250);
+    --foreground: oklch(0.97 0.01 250);
+    --card: oklch(0.22 0.04 250);
+    --card-foreground: oklch(0.97 0.01 250);
+    --popover: oklch(0.22 0.04 250);
+    --popover-foreground: oklch(0.97 0.01 250);
+    --primary: oklch(0.5 0.1 182);
+    --primary-foreground: oklch(0.98 0.01 90);
+    --secondary: oklch(0.78 0.18 95);
+    --secondary-foreground: oklch(0.18 0.04 250);
+    --muted: oklch(0.25 0.02 250);
+    --muted-foreground: oklch(0.7 0.05 250);
+    --accent: oklch(0.25 0.02 250);
+    --accent-foreground: oklch(0.97 0.01 250);
+    --destructive: oklch(0.55 0.2 25);
+    --destructive-foreground: oklch(0.98 0 0);
+    --border: oklch(0.25 0.02 250);
+    --input: oklch(0.25 0.02 250);
+    --ring: oklch(0.5 0.1 182);
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
