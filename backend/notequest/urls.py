@@ -31,7 +31,7 @@ urlpatterns = [
     # API endpoints
     # path('api/notebooks/', include('notebooks.urls')),
     path('api/notes/', include('notes.urls')),
-    path('api/files/', include('files.urls')),
+    path('api/', include('files.urls')),
 
     path('api/auth/', include('users.urls')),
     path('api/', include(router.urls)),
