@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.conf import settings
-
+import hashlib
 
 def validate_file_size(file):
     """Validar que el archivo no sea mayor a 10MB"""
@@ -16,6 +16,7 @@ def validate_file_type(file):
     file_extension = file.name.split('.')[-1].lower()
     if file_extension not in allowed_types:
         raise ValidationError(f'Tipo de archivo no permitido. Solo: {", ".join(allowed_types)}')
+
 
 class File(models.Model):
     FILE_TYPE_CHOICES = [
@@ -54,24 +55,57 @@ class File(models.Model):
     # Fecha de subida
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
-    # Campos para procesamiento/IA
+    # Campos de procesamiento
     processing_status = models.CharField(max_length=20, choices=PROCESSING_STATUS, default='queued')
     processing_error = models.TextField(blank=True, null=True)
-    md_content = models.TextField(blank=True, null=True)  # texto convertido a markdown
-    language = models.CharField(max_length=10, blank=True, null=True)
-    checksum = models.CharField(max_length=64, blank=True, null=True)
+    md_content = models.TextField(blank=True, null=True)   # contenido extraído/convertido a markdown
+    checksum = models.CharField(max_length=64, blank=True, null=True)  # sha256
+    language = models.CharField(max_length=20, blank=True, null=True)
+
+    class Meta:
+        ordering = ['-uploaded_at']
+
+    def compute_checksum(self):
+        """Calcula SHA256 del archivo (no del path)."""
+        try:
+            h = hashlib.sha256()
+            # file.path puede no estar disponible en todos los storage; usamos .file
+            f = self.file
+            if not f:
+                return None
+            # mueve el puntero al inicio
+            file_obj = f.open(mode='rb')  # asegura abierto
+            try:
+                # leer por chunks para archivos grandes
+                for chunk in iter(lambda: file_obj.read(8192), b''):
+                    h.update(chunk)
+            finally:
+                file_obj.close()
+            return h.hexdigest()
+        except Exception:
+            return None
 
     def save(self, *args, **kwargs):
-        if self.file:
-            # Guardar información del archivo automáticamente
-            # file.name normalmente incluye la ruta relative, usamos basename
-            self.filename = self.file.name.split('/')[-1]
-            self.file_size = self.file.size
-            # Extraer extensión del archivo
-            self.file_type = self.file.name.split('.')[-1].lower()
+        is_new = self._state.adding  # True si es un nuevo archivo
+
+        # Primero guarda normalmente (esto guarda el archivo en disco)
         super().save(*args, **kwargs)
 
+        # Luego, una vez guardado, extraemos metadatos y actualizamos
+        if is_new and self.file:
+            try:
+                self.filename = self.file.name.split('/')[-1]
+                self.file_type = self.file.name.split('.')[-1].lower()
+                self.file_size = getattr(self.file, 'size', None)
+                if not self.checksum:
+                    self.checksum = self.compute_checksum()
+                # Guardamos solo los metadatos (sin volver a escribir el archivo)
+                super().save(update_fields=['filename', 'file_type', 'file_size', 'checksum'])
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(f"Error actualizando metadatos del archivo {self.id}: {e}")
+
+
     def __str__(self):
-        # Mostrar título de la nota si existe para más contexto
-        note_title = getattr(self.note, 'title', str(self.note_id)) if self.note_id else 'No note'
+        note_title = getattr(self.note, 'title', str(self.note_id)) if getattr(self, 'note_id', None) else 'No note'
         return f"{self.filename} (note: {note_title})"
