@@ -201,16 +201,16 @@ const DashboardPage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <Link to={`/notebooks/${selectedNotebook.id}/notes`}>
-                  <Button variant="outline" className="w-full justify-start h-12 text-base">
+                  <Button variant="outline" className="w-full justify-start h-12 text-base mb-4">
                     <Plus className="mr-3 h-5 w-5" />
                     Crear Nueva Nota
                   </Button>
                 </Link>
                 
                 <Link to="/notebooks">
-                  <Button variant="outline" className="w-full justify-start h-12 text-base">
+                  <Button variant="outline" className="w-full justify-start h-12 text-base mb-4">
                     <BookOpen className="mr-3 h-5 w-5" />
                     Ver Todos los Notebooks
                   </Button>
