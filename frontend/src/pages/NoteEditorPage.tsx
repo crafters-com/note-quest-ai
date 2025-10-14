@@ -6,8 +6,10 @@ import { useDebounce } from "@/hooks/useDebounce";
 import MarkdownNoteEditor from "@/components/features/notes/MarkdownNoteEditor";
 import ExportNoteMenu from "@/components/features/notes/ExportNoteMenu";
 import ImportMarkdownModal from "@/components/features/notes/ImportMarkdownModal";
+import { ShareNoteModal } from "@/components/features/notes/ShareNoteModal";
 import { Button } from "@/components/ui/Button";
-import { ArrowLeft, Save, Upload } from "lucide-react";
+import { ArrowLeft, Save, Upload, Share2, Trash2 } from "lucide-react";
+import { useToast } from "@/hooks/useToast";
 
 const NoteEditorPage = () => {
   const { noteId } = useParams<{ noteId: string }>();
@@ -25,6 +27,8 @@ const NoteEditorPage = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const { toast } = useToast();
   
   const debouncedTitle = useDebounce(title, 500);
   const debouncedContent = useDebounce(content, 500);
@@ -186,6 +190,34 @@ const NoteEditorPage = () => {
     }
   };
 
+  // Función para eliminar la nota
+  const handleDeleteNote = async () => {
+    if (!initialNote) return;
+    
+    const confirmed = window.confirm(
+      `¿Estás seguro de que deseas eliminar la nota "${title}"?\n\nEsta acción no se puede deshacer.`
+    );
+    
+    if (!confirmed) return;
+    
+    try {
+      await noteService.deleteNote(numericId);
+      toast({
+        title: "Nota eliminada",
+        description: "La nota ha sido eliminada exitosamente",
+        variant: "success",
+      });
+      // Redirigir al listado de notas del notebook
+      navigate(`/notebooks/${initialNote.notebook}/notes`);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar la nota",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) return (
     <div className="p-4 md:p-8 flex items-center justify-center">
       <div className="text-muted-foreground">Cargando nota...</div>
@@ -248,12 +280,34 @@ const NoteEditorPage = () => {
             </Button>
           )}
           
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => setIsShareModalOpen(true)}
+            className="gap-2"
+          >
+            <Share2 className="h-4 w-4" />
+            Compartir
+          </Button>
+          
           <ExportNoteMenu
             noteTitle={title}
             noteContent={content}
             variant="default"
             size="sm"
           />
+
+          <div className="h-4 w-px bg-border" />
+          
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDeleteNote}
+            className="gap-2 bg-red-100 text-red-700 hover:bg-red-200 border-red-200"
+          >
+            <Trash2 className="h-4 w-4" />
+            Eliminar
+          </Button>
         </div>
       </div>
       
@@ -311,15 +365,25 @@ const NoteEditorPage = () => {
           </div>
         )}
         
-        {!isSaving && !saveError && !hasUnsavedChanges.current && lastSaved && (
+        {!isSaving && !saveError && lastSaved && !hasUnsavedChanges.current && (
           <div className="flex items-center gap-2 px-3 py-2 bg-green-100 text-green-700 rounded-lg shadow-md border border-green-200">
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            <span className="text-sm font-medium">Guardado {lastSaved.toLocaleTimeString()}</span>
+            <span className="text-sm font-medium">Guardado</span>
           </div>
         )}
       </div>
+
+      {/* Modal para compartir nota */}
+      {initialNote && (
+        <ShareNoteModal
+          open={isShareModalOpen}
+          onOpenChange={setIsShareModalOpen}
+          noteId={numericId}
+          noteTitle={title}
+        />
+      )}
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "@/hooks/useData";
 import { notebookService, type Notebook } from "@/services/notebookService";
+import { useToast } from "@/hooks/useToast";
 
 // --- Tus componentes de UI ---
 import { Button } from "@/components/ui/Button";
@@ -9,35 +10,55 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { CreateNotebookModal } from "@/components/features/notebooks/CreateNotebookModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/Dropdown";
 import { Input } from "@/components/ui/Input";
-import { Filter, Grid3X3, List, Plus, Search, Folder, Tag } from "lucide-react";
+import { Filter, Grid3X3, List, Plus, Search, Folder, Tag, Trash2 } from "lucide-react";
 
 // --- Componentes para mostrar cada Notebook ---
-const NotebookCard = ({ notebook }: { notebook: Notebook }) => (
-  <Link to={`/notebooks/${notebook.id}/notes`}>
-    <Card className="p-4 hover:bg-accent transition-colors">
-      <div className="flex items-center gap-3">
-        <Folder className="h-6 w-6 text-primary" />
-        <div>
-          <h3 className="font-bold">{notebook.name}</h3>
-          <p className="text-sm text-muted-foreground">{notebook.subject}</p>
-        </div>
+const NotebookCard = ({ notebook, onDelete }: { notebook: Notebook; onDelete: (id: number) => void }) => (
+  <Card className="p-4 hover:bg-accent transition-colors group relative">
+    <Link to={`/notebooks/${notebook.id}/notes`} className="flex items-center gap-3">
+      <Folder className="h-6 w-6 text-primary" />
+      <div className="flex-1">
+        <h3 className="font-bold">{notebook.name}</h3>
+        <p className="text-sm text-muted-foreground">{notebook.subject}</p>
       </div>
-    </Card>
-  </Link>
+    </Link>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onDelete(notebook.id);
+      }}
+      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 hover:bg-red-50 border-transparent p-2 h-auto"
+    >
+      <Trash2 className="h-4 w-4" />
+    </Button>
+  </Card>
 );
 
-const NotebookListItem = ({ notebook }: { notebook: Notebook }) => (
-  <Link to={`/notebooks/${notebook.id}/notes`}>
-    <Card className="p-3 hover:bg-accent transition-colors">
-      <div className="flex items-center gap-3">
-        <Folder className="h-5 w-5 text-primary" />
-        <div>
-          <h3 className="font-semibold">{notebook.name}</h3>
-          <p className="text-sm text-muted-foreground">{notebook.subject}</p>
-        </div>
+const NotebookListItem = ({ notebook, onDelete }: { notebook: Notebook; onDelete: (id: number) => void }) => (
+  <Card className="p-3 hover:bg-accent transition-colors group relative">
+    <Link to={`/notebooks/${notebook.id}/notes`} className="flex items-center gap-3">
+      <Folder className="h-5 w-5 text-primary" />
+      <div className="flex-1">
+        <h3 className="font-semibold">{notebook.name}</h3>
+        <p className="text-sm text-muted-foreground">{notebook.subject}</p>
       </div>
-    </Card>
-  </Link>
+    </Link>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onDelete(notebook.id);
+      }}
+      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 hover:bg-red-50 border-transparent p-2 h-auto"
+    >
+      <Trash2 className="h-4 w-4" />
+    </Button>
+  </Card>
 );
 
 // --- El componente de página ---
@@ -45,6 +66,7 @@ const NotebooksPage = () => {
   const { data: notebooks, loading, error, setData: setNotebooks } = useData<Notebook[]>(
     () => notebookService.getNotebooks()
   );
+  const { toast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("Todos");
@@ -54,6 +76,35 @@ const NotebooksPage = () => {
   const handleNotebookCreated = (newNotebook: Notebook) => {
     setNotebooks((prevNotebooks) => (prevNotebooks ? [newNotebook, ...prevNotebooks] : [newNotebook]));
     setIsModalOpen(false);
+  };
+
+  const handleDeleteNotebook = async (notebookId: number) => {
+    const notebook = notebooks?.find(n => n.id === notebookId);
+    if (!notebook) return;
+
+    const confirmed = window.confirm(
+      `¿Estás seguro de que deseas eliminar el notebook "${notebook.name}"?\n\n` +
+      `Todas las notas dentro de este notebook también serán eliminadas.\n\n` +
+      `Esta acción no se puede deshacer.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await notebookService.deleteNotebook(notebookId);
+      setNotebooks((prevNotebooks) => prevNotebooks?.filter(n => n.id !== notebookId) || null);
+      toast({
+        title: "Notebook eliminado",
+        description: "El notebook y todas sus notas han sido eliminados",
+        variant: "success",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el notebook",
+        variant: "destructive",
+      });
+    }
   };
 
   const subjects = ["Todos", ...new Set(notebooks?.map((n) => n.subject) ?? [])];
@@ -167,9 +218,9 @@ const NotebooksPage = () => {
           <div className={viewMode === "grid" ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3" : "space-y-3"}>
             {filteredNotebooks.map((notebook) =>
               viewMode === "grid" ? (
-                <NotebookCard key={notebook.id} notebook={notebook} />
+                <NotebookCard key={notebook.id} notebook={notebook} onDelete={handleDeleteNotebook} />
               ) : (
-                <NotebookListItem key={notebook.id} notebook={notebook} />
+                <NotebookListItem key={notebook.id} notebook={notebook} onDelete={handleDeleteNotebook} />
               )
             )}
           </div>

@@ -80,7 +80,7 @@ export const SearchFriendsModal = ({ open, onOpenChange, onSuccess }: SearchFrie
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Buscar Amigos</DialogTitle>
+          <DialogTitle>Añadir Amigos</DialogTitle>
           <DialogDescription>
             Busca usuarios por nombre o correo electrónico para enviar solicitudes de amistad.
           </DialogDescription>

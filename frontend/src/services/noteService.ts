@@ -55,10 +55,21 @@ const deleteNote = (id: number): Promise<void> => {
   return apiClient.delete(`/notes/${id}/`);
 };
 
+/**
+ * Comparte una nota con un amigo (crea una copia)
+ */
+const shareNote = (noteId: number, friendId: string, notebookId?: number): Promise<any> => {
+  return apiClient.post(`/notes/${noteId}/share/`, {
+    friend_id: friendId,
+    notebook_id: notebookId
+  }).then((response) => response.data);
+};
+
 export const noteService = {
   getNotes,
   getNote,
   createNote,
   updateNote,
   deleteNote,
+  shareNote,
 };

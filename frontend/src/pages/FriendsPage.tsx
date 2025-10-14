@@ -142,7 +142,7 @@ const FriendsPage = () => {
         </div>
         <Button className="w-fit" onClick={() => setIsSearchModalOpen(true)}>
           <UserPlus className="mr-2 h-4 w-4" />
-          Buscar Amigos
+          Añadir Amigos
         </Button>
       </div>
 
@@ -281,7 +281,7 @@ const FriendsPage = () => {
               </p>
               <Button onClick={() => setIsSearchModalOpen(true)}>
                 <UserPlus className="mr-2 h-4 w-4" />
-                Buscar Amigos
+                Añadir Amigos
               </Button>
             </div>
           ) : filteredFriends.length === 0 ? (
