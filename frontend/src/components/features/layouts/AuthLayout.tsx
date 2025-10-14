@@ -1,14 +1,11 @@
-import { Brain, FileText } from "lucide-react";
-import { Outlet } from "react-router-dom"; // Es mejor usar 'react-router-dom' para web
+import { Outlet } from "react-router-dom";
+import LogoSvg from "@/assets/icons/logo.svg";
 
 // --- Sub-componentes de la sección de Branding ---
 
 const BrandLogo = () => (
   <div className="flex items-center gap-3">
-    <div className="relative">
-      <FileText className="h-8 w-8 text-primary" />
-      <Brain className="absolute -right-1 -top-1 h-5 w-5 text-secondary" />
-    </div>
+    <img src={LogoSvg} alt="NoteQuest-AI Logo" className="h-12 w-12" />
     <h1 className="text-3xl font-bold text-foreground">NoteQuest-AI</h1>
   </div>
 );

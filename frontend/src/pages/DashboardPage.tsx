@@ -6,6 +6,12 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/Dropdown";
 import { 
   FileText, 
   Plus, 
@@ -13,11 +19,13 @@ import {
   BookOpen,
   TrendingUp,
   Clock,
-  Target
+  Target,
+  ChevronDown,
+  Check
 } from 'lucide-react';
 
 const DashboardPage = () => {
-  const { selectedNotebook, notebooks } = useNotebook();
+  const { selectedNotebook, notebooks, setSelectedNotebook } = useNotebook();
   
   const { data: notes, loading, error } = useData<Note[]>(
     () => selectedNotebook ? noteService.getNotes(selectedNotebook.id) : Promise.resolve([]),
@@ -52,14 +60,65 @@ const DashboardPage = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">
-            {selectedNotebook 
-              ? `Notas de "${selectedNotebook.name}" - ${selectedNotebook.subject}`
-              : 'Selecciona un notebook para ver tus notas'
-            }
-          </p>
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
+          
+          {/* Notebook Selector */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-600">Notebook:</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="justify-between min-w-[240px] bg-white hover:bg-gray-50 border-gray-200 shadow-sm"
+                >
+                  {selectedNotebook ? (
+                    <>
+                      <span className="truncate font-medium text-gray-900">{selectedNotebook.name}</span>
+                      <ChevronDown className="ml-2 h-4 w-4 text-gray-500" />
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-gray-500">Seleccionar notebook</span>
+                      <ChevronDown className="ml-2 h-4 w-4 text-gray-400" />
+                    </>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[280px] bg-white border-gray-200 shadow-lg">
+                {notebooks && notebooks.length > 0 ? (
+                  notebooks.map((notebook) => (
+                    <DropdownMenuItem
+                      key={notebook.id}
+                      onClick={() => setSelectedNotebook(notebook)}
+                      className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
+                    >
+                      <div className="flex items-center justify-between w-full py-1">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 truncate">{notebook.name}</p>
+                          <p className="text-xs text-gray-500 truncate">{notebook.subject}</p>
+                        </div>
+                        {selectedNotebook?.id === notebook.id && (
+                          <Check className="ml-2 h-4 w-4 text-primary flex-shrink-0" />
+                        )}
+                      </div>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <DropdownMenuItem disabled>
+                    <span className="text-gray-400">No hay notebooks</span>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          {selectedNotebook && (
+            <p className="text-sm text-muted-foreground mt-2">
+              {selectedNotebook.subject}
+            </p>
+          )}
         </div>
         {selectedNotebook && (
           <Link to={`/notebooks/${selectedNotebook.id}/notes`}>

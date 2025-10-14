@@ -11,8 +11,6 @@ import {
 import { cn } from "@/utils/cn";
 import {
   BookOpen,
-  Brain,
-  FileText,
   HelpCircle,
   Home,
   LogOut,
@@ -23,6 +21,7 @@ import {
 import type React from "react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import LogoSvg from "@/assets/icons/logo.svg";
 
 const navigation = [
   {
@@ -64,8 +63,7 @@ const SidebarContent: React.FC = () => {
       {/* Logo */}
       <div className="flex h-16 items-center gap-3 border-b px-6">
         <div className="relative">
-          <FileText className="h-8 w-8 text-primary" />
-          <Brain className="h-5 w-5 text-secondary absolute -top-1 -right-1" />
+          <img src={LogoSvg} alt="Logo" className="h-10 w-10" />
         </div>
         <div className="flex flex-col">
           <span className="text-lg font-bold text-foreground">
