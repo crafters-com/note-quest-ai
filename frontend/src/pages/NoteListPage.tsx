@@ -22,7 +22,7 @@ const NoteListPage = () => {
     [numericId]
   );
 
-  if (loading) return <div>Cargando notas...</div>;
+  if (loading) return <div>Loading notes...</div>;
   if (error) return <div className="text-destructive">{error}</div>;
 
   // Función para manejar importación de archivos
@@ -38,8 +38,8 @@ const NoteListPage = () => {
       // Navegar a la nueva nota
       navigate(`/notes/${newNote.id}`);
     } catch (error) {
-      console.error('Error al importar nota:', error);
-      throw new Error('Error al importar el archivo');
+      console.error('Error importing note:', error);
+      throw new Error('Error importing file');
     }
   };
 
@@ -48,7 +48,7 @@ const NoteListPage = () => {
     try {
       // Crea una nota con un título por defecto
       const newNoteData = {
-        title: "Nota sin título",
+        title: "Untitled note",
         content: "",
         notebook: numericId,
       };
@@ -57,7 +57,7 @@ const NoteListPage = () => {
       // Redirige a la página del editor para la nueva nota
       navigate(`/notes/${newNote.id}`);
     } catch (error) {
-      console.error("Error al crear la nota:", error);
+      console.error("Error creating note:", error);
       // Aquí podrías mostrar una notificación de error
     } finally {
       setIsCreating(false);
@@ -77,7 +77,7 @@ const NoteListPage = () => {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Notas del Notebook</h1>
+            <h1 className="text-3xl font-bold">Notebook Notes</h1>
           </div>
         </div>
         <div className="flex gap-2">
@@ -87,14 +87,14 @@ const NoteListPage = () => {
           />
           <Button onClick={handleCreateNote} disabled={isCreating} size="default">
             <Plus className="mr-2 h-4 w-4" />
-            {isCreating ? "Creando..." : "Crear Nota"}
+            {isCreating ? "Creating..." : "Create Note"}
           </Button>
         </div>
       </div>
       
       {/* 👇 1. Añadimos 'null check'. Si notes es null, su longitud es 0. 👇 */}
       {(notes?.length ?? 0) === 0 ? (
-        <p>Este notebook aún no tiene notas.</p>
+        <p>This notebook doesn't have notes yet.</p>
       ) : (
         <div className="space-y-4">
           {notes?.map((note) => (

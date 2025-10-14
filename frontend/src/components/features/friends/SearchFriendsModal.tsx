@@ -37,7 +37,7 @@ export const SearchFriendsModal = ({ open, onOpenChange, onSuccess }: SearchFrie
         console.error('Error searching users:', error);
         toast({
           title: "Error",
-          description: "Error al buscar usuarios",
+          description: "Error searching users",
           variant: "destructive"
         });
       } finally {
@@ -53,8 +53,8 @@ export const SearchFriendsModal = ({ open, onOpenChange, onSuccess }: SearchFrie
     try {
       await friendshipService.sendRequest(userId);
       toast({
-        title: "Éxito",
-        description: "Solicitud de amistad enviada",
+        title: "Success",
+        description: "Friend request sent",
         variant: "success",
       });
       setSearchQuery('');
@@ -63,7 +63,7 @@ export const SearchFriendsModal = ({ open, onOpenChange, onSuccess }: SearchFrie
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.error || "No se pudo enviar la solicitud de amistad",
+        description: error.response?.data?.error || "Could not send friend request",
         variant: "destructive"
       });
     } finally {
@@ -80,15 +80,15 @@ export const SearchFriendsModal = ({ open, onOpenChange, onSuccess }: SearchFrie
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px] bg-white">
         <DialogHeader>
-          <DialogTitle>Añadir Amigos</DialogTitle>
+          <DialogTitle>Add Friends</DialogTitle>
           <DialogDescription>
-            Busca usuarios por nombre o correo electrónico para enviar solicitudes de amistad.
+            Search users by name or email to send friend requests.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-4">
             <Input
-              placeholder="Buscar usuarios..."
+              placeholder="Search users..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full"
@@ -119,19 +119,19 @@ export const SearchFriendsModal = ({ open, onOpenChange, onSuccess }: SearchFrie
                       ) : (
                         <UserPlus className="h-4 w-4 mr-2" />
                       )}
-                      Añadir
+                      Add
                     </Button>
                   </li>
                 ))}
               </ul>
             ) : searchQuery ? (
-              <p className="text-center text-gray-500 py-8">No se encontraron usuarios</p>
+              <p className="text-center text-gray-500 py-8">No users found</p>
             ) : null}
           </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cerrar
+            Close
           </Button>
         </DialogFooter>
       </DialogContent>

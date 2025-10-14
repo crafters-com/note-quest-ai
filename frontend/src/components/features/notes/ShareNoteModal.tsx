@@ -59,7 +59,7 @@ export const ShareNoteModal = ({ open, onOpenChange, noteId, noteTitle }: ShareN
       console.error('Error loading friends:', error);
       toast({
         title: "Error",
-        description: "No se pudieron cargar tus amigos",
+        description: "Could not load your friends",
         variant: "destructive"
       });
     } finally {
@@ -83,15 +83,15 @@ export const ShareNoteModal = ({ open, onOpenChange, noteId, noteTitle }: ShareN
     try {
       await noteService.shareNote(noteId, selectedFriend, selectedNotebook || undefined);
       toast({
-        title: "¡Nota compartida!",
-        description: `La nota "${noteTitle}" ha sido compartida exitosamente`,
+        title: "Note shared!",
+        description: `The note "${noteTitle}" has been shared successfully`,
         variant: "success",
       });
       onOpenChange(false);
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.error || "No se pudo compartir la nota",
+        description: error.response?.data?.error || "Could not share the note",
         variant: "destructive"
       });
     } finally {
@@ -109,12 +109,12 @@ export const ShareNoteModal = ({ open, onOpenChange, noteId, noteTitle }: ShareN
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 className="h-5 w-5" />
-            Compartir Nota
+            Share Note
           </DialogTitle>
           <DialogDescription>
             {step === 'friend' 
-              ? 'Selecciona un amigo con quien compartir esta nota'
-              : 'La nota se compartirá en el notebook "Notas Compartidas" de tu amigo'}
+              ? 'Select a friend to share this note with'
+              : 'The note will be shared to your friend\'s "Shared Notes" notebook'}
           </DialogDescription>
         </DialogHeader>
 
@@ -126,8 +126,8 @@ export const ShareNoteModal = ({ open, onOpenChange, noteId, noteTitle }: ShareN
           ) : friends.length === 0 ? (
             <div className="text-center py-8">
               <Users className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
-              <p className="text-muted-foreground">No tienes amigos agregados</p>
-              <p className="text-sm text-muted-foreground">Agrega amigos para compartir notas</p>
+              <p className="text-muted-foreground">You don't have any friends added</p>
+              <p className="text-sm text-muted-foreground">Add friends to share notes</p>
             </div>
           ) : step === 'friend' ? (
             <div className="space-y-2 max-h-[300px] overflow-y-auto">
@@ -160,7 +160,7 @@ export const ShareNoteModal = ({ open, onOpenChange, noteId, noteTitle }: ShareN
                     <p className="font-semibold">
                       {friends.find(f => f.friend.id === selectedFriend)?.friend.username}
                     </p>
-                    <p className="text-sm text-muted-foreground">Recibirá una copia editable de la nota</p>
+                    <p className="text-sm text-muted-foreground">Will receive an editable copy of the note</p>
                   </div>
                 </div>
               </div>
@@ -168,10 +168,10 @@ export const ShareNoteModal = ({ open, onOpenChange, noteId, noteTitle }: ShareN
               <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
                 <Folder className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
                 <div className="text-sm text-blue-900">
-                  <p className="font-medium">Notebook destino</p>
+                  <p className="font-medium">Destination notebook</p>
                   <p className="text-blue-700">
-                    La nota se guardará automáticamente en el notebook del amigo. 
-                    Podrá moverla o editarla como desee.
+                    The note will be automatically saved to your friend's notebook. 
+                    They can move or edit it as desired.
                   </p>
                 </div>
               </div>
@@ -186,11 +186,11 @@ export const ShareNoteModal = ({ open, onOpenChange, noteId, noteTitle }: ShareN
               onClick={() => setStep('friend')}
               disabled={sharing}
             >
-              Atrás
+              Back
             </Button>
           )}
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={sharing}>
-            Cancelar
+            Cancel
           </Button>
           {step === 'notebook' && (
             <Button 
@@ -201,12 +201,12 @@ export const ShareNoteModal = ({ open, onOpenChange, noteId, noteTitle }: ShareN
               {sharing ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Compartiendo...
+                  Sharing...
                 </>
               ) : (
                 <>
                   <Share2 className="h-4 w-4 mr-2" />
-                  Compartir
+                  Share
                 </>
               )}
             </Button>

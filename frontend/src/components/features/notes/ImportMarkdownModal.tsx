@@ -48,7 +48,7 @@ const ImportMarkdownModal = ({ onImport, notebookId, trigger }: ImportMarkdownMo
     // Validar archivo
     const validation = validateMarkdownFile(file);
     if (!validation.valid) {
-      setError(validation.error || 'Archivo no válido');
+      setError(validation.error || 'Invalid file');
       return;
     }
 
@@ -60,7 +60,7 @@ const ImportMarkdownModal = ({ onImport, notebookId, trigger }: ImportMarkdownMo
       setPreviewTitle(title);
       setPreviewContent(content);
     } catch (err: any) {
-      setError(err.message || 'Error al leer el archivo');
+      setError(err.message || 'Error reading file');
       setSelectedFile(null);
     }
   };
@@ -74,7 +74,7 @@ const ImportMarkdownModal = ({ onImport, notebookId, trigger }: ImportMarkdownMo
       setIsOpen(false);
       resetModal();
     } catch (err: any) {
-      setError(err.message || 'Error al importar el archivo');
+      setError(err.message || 'Error importing file');
     } finally {
       setIsLoading(false);
     }
@@ -93,20 +93,20 @@ const ImportMarkdownModal = ({ onImport, notebookId, trigger }: ImportMarkdownMo
         {trigger || (
           <Button variant="default" size="default">
             <Upload className="h-4 w-4 mr-2" />
-            Importar MD
+            Import MD
           </Button>
         )}
       </DialogTrigger>
       
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Importar archivo Markdown</DialogTitle>
+          <DialogTitle>Import Markdown file</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* Selector de archivo */}
           <div className="space-y-2">
-            <Label htmlFor="file-upload">Seleccionar archivo</Label>
+            <Label htmlFor="file-upload">Select file</Label>
             <div className="flex items-center gap-3">
               <Input
                 id="file-upload"
@@ -153,21 +153,21 @@ const ImportMarkdownModal = ({ onImport, notebookId, trigger }: ImportMarkdownMo
 
               {/* Título editable */}
               <div className="space-y-2">
-                <Label htmlFor="note-title">Título de la nota</Label>
+                <Label htmlFor="note-title">Note title</Label>
                 <Input
                   id="note-title"
                   value={previewTitle}
                   onChange={(e) => setPreviewTitle(e.target.value)}
-                  placeholder="Ingresa un título para la nota"
+                  placeholder="Enter a title for the note"
                 />
               </div>
 
               {/* Vista previa del contenido */}
               <div className="space-y-2">
-                <Label>Vista previa del contenido</Label>
+                <Label>Content preview</Label>
                 <div className="border rounded-md p-4 max-h-60 overflow-y-auto bg-muted/30">
                   <pre className="text-sm whitespace-pre-wrap text-muted-foreground">
-                    {previewContent || 'El archivo está vacío'}
+                    {previewContent || 'The file is empty'}
                   </pre>
                 </div>
               </div>
@@ -178,7 +178,7 @@ const ImportMarkdownModal = ({ onImport, notebookId, trigger }: ImportMarkdownMo
           <div className="flex justify-end gap-3 pt-4 border-t">
             <DialogClose asChild>
               <Button variant="outline" disabled={isLoading}>
-                Cancelar
+                Cancel
               </Button>
             </DialogClose>
             <Button
@@ -189,10 +189,10 @@ const ImportMarkdownModal = ({ onImport, notebookId, trigger }: ImportMarkdownMo
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="h-4 w-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  Importando...
+                  Importing...
                 </div>
               ) : (
-                'Importar'
+                'Import'
               )}
             </Button>
           </div>

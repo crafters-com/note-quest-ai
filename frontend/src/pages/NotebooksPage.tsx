@@ -83,9 +83,9 @@ const NotebooksPage = () => {
     if (!notebook) return;
 
     const confirmed = window.confirm(
-      `¿Estás seguro de que deseas eliminar el notebook "${notebook.name}"?\n\n` +
-      `Todas las notas dentro de este notebook también serán eliminadas.\n\n` +
-      `Esta acción no se puede deshacer.`
+      `Are you sure you want to delete the notebook "${notebook.name}"?\n\n` +
+      `All notes within this notebook will also be deleted.\n\n` +
+      `This action cannot be undone.`
     );
 
     if (!confirmed) return;
@@ -94,14 +94,14 @@ const NotebooksPage = () => {
       await notebookService.deleteNotebook(notebookId);
       setNotebooks((prevNotebooks) => prevNotebooks?.filter(n => n.id !== notebookId) || null);
       toast({
-        title: "Notebook eliminado",
-        description: "El notebook y todas sus notas han sido eliminados",
+        title: "Notebook deleted",
+        description: "The notebook and all its notes have been deleted",
         variant: "success",
       });
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo eliminar el notebook",
+        description: "Could not delete the notebook",
         variant: "destructive",
       });
     }
@@ -117,7 +117,7 @@ const NotebooksPage = () => {
       return matchesSearch && matchesSubject;
     }) ?? [];
 
-  if (loading) return <div>Cargando notebooks...</div>;
+  if (loading) return <div>Loading notebooks...</div>;
   if (error) return <div className="text-destructive">{error}</div>;
 
   return (
@@ -125,14 +125,14 @@ const NotebooksPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Mis Notebooks</h1>
+          <h1 className="text-3xl font-bold text-foreground">My Notebooks</h1>
           <p className="text-muted-foreground">
-            Organiza tus apuntes en carpetas temáticas
+            Organize your notes into thematic folders
           </p>
         </div>
         <Button className="w-fit" onClick={() => setIsModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Crear Notebook
+          Create Notebook
         </Button>
       </div>
 
@@ -141,7 +141,7 @@ const NotebooksPage = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Buscar por nombre o materia..."
+            placeholder="Search by name or subject..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -181,7 +181,7 @@ const NotebooksPage = () => {
             <Folder className="h-6 w-6 text-primary" />
             <div>
               <p className="text-2xl font-bold">{notebooks?.length ?? 0}</p>
-              <p className="text-sm text-muted-foreground">Total de Notebooks</p>
+              <p className="text-sm text-muted-foreground">Total Notebooks</p>
             </div>
           </CardContent>
         </Card>
@@ -190,7 +190,7 @@ const NotebooksPage = () => {
             <Tag className="h-6 w-6 text-secondary" />
             <div>
               <p className="text-2xl font-bold">{subjects.length - 1}</p>
-              <p className="text-sm text-muted-foreground">Materias Únicas</p>
+              <p className="text-sm text-muted-foreground">Unique Subjects</p>
             </div>
           </CardContent>
         </Card>
@@ -202,15 +202,15 @@ const NotebooksPage = () => {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
               <Folder className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No se encontraron notebooks</h3>
+              <h3 className="text-lg font-semibold mb-2">No notebooks found</h3>
               <p className="text-muted-foreground mb-4">
                 {searchTerm || selectedSubject !== "Todos"
-                  ? "Intenta ajustar tus filtros de búsqueda."
-                  : "Comienza creando tu primer notebook."}
+                  ? "Try adjusting your search filters."
+                  : "Start by creating your first notebook."}
               </p>
               <Button onClick={() => setIsModalOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Crear Notebook
+                Create Notebook
               </Button>
             </CardContent>
           </Card>

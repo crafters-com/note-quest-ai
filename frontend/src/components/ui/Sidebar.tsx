@@ -30,17 +30,17 @@ const navigation = [
     icon: Home,
   },
   {
-    name: "Amigos",
+    name: "Friends",
     href: "/friends",
     icon: User,
   },
   {
-    name: "Mis notebooks",
+    name: "My Notebooks",
     href: "/notebooks",
     icon: BookOpen,
   },
   {
-    name: "Subir Apuntes",
+    name: "Upload Notes",
     href: "/upload",
     icon: Upload,
   },
@@ -70,7 +70,7 @@ const SidebarContent: React.FC = () => {
             NoteQuest-AI
           </span>
           <span className="text-xs text-muted-foreground">
-            Gestión inteligente
+            Smart Management
           </span>
         </div>
       </div>
@@ -102,7 +102,7 @@ const SidebarContent: React.FC = () => {
         <div className="py-2">
           <div className="px-3 py-1">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Notebook Activo
+              Active Notebook
             </span>
           </div>
           <NotebookDropdown />
@@ -117,7 +117,7 @@ const SidebarContent: React.FC = () => {
             onClick={logout}
           >
             <LogOut className="h-4 w-4" />
-            Cerrar sesión
+            Sign Out
           </Button>
         </div>
       </div>
@@ -140,7 +140,7 @@ export const MobileSidebar: React.FC = () => {
       <SheetTrigger asChild>
         <Button variant="outline" size="sm" className="xl:hidden">
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Abrir menú</span>
+          <span className="sr-only">Open menu</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="p-0 w-64 gap-0">

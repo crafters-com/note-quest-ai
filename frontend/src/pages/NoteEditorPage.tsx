@@ -63,7 +63,7 @@ const NoteEditorPage = () => {
       setLastSaved(new Date());
       hasUnsavedChanges.current = false;
     } catch (err: any) {
-      const errorMessage = err.response?.data?.error || err.message || "Error al guardar";
+      const errorMessage = err.response?.data?.error || err.message || "Error saving";
       setSaveError(errorMessage);
     } finally {
       setIsSaving(false);
@@ -73,7 +73,7 @@ const NoteEditorPage = () => {
   // Actualiza el estado local cuando se cargan los datos iniciales
   useEffect(() => {
     if (initialNote) {
-      const noteTitle = initialNote.title || "Nota sin título";
+      const noteTitle = initialNote.title || "Untitled note";
       setTitle(noteTitle);
       setContent(initialNote.content || "");
       setLastSaved(new Date(initialNote.updated_at));
@@ -162,8 +162,8 @@ const NoteEditorPage = () => {
       // Navegar a la nueva nota
       navigate(`/notes/${newNote.id}`);
     } catch (error) {
-      console.error('Error al importar nota:', error);
-      throw new Error('Error al importar el archivo');
+      console.error('Error importing note:', error);
+      throw new Error('Error importing file');
     }
   };
 
@@ -195,7 +195,7 @@ const NoteEditorPage = () => {
     if (!initialNote) return;
     
     const confirmed = window.confirm(
-      `¿Estás seguro de que deseas eliminar la nota "${title}"?\n\nEsta acción no se puede deshacer.`
+      `Are you sure you want to delete the note "${title}"?\n\nThis action cannot be undone.`
     );
     
     if (!confirmed) return;
@@ -203,8 +203,8 @@ const NoteEditorPage = () => {
     try {
       await noteService.deleteNote(numericId);
       toast({
-        title: "Nota eliminada",
-        description: "La nota ha sido eliminada exitosamente",
+        title: "Note deleted",
+        description: "The note has been deleted successfully",
         variant: "success",
       });
       // Redirigir al listado de notas del notebook
@@ -212,7 +212,7 @@ const NoteEditorPage = () => {
     } catch (error) {
       toast({
         title: "Error",
-        description: "No se pudo eliminar la nota",
+        description: "Could not delete the note",
         variant: "destructive",
       });
     }
@@ -220,7 +220,7 @@ const NoteEditorPage = () => {
 
   if (loading) return (
     <div className="p-4 md:p-8 flex items-center justify-center">
-      <div className="text-muted-foreground">Cargando nota...</div>
+      <div className="text-muted-foreground">Loading note...</div>
     </div>
   );
   if (error) return (
@@ -233,7 +233,7 @@ const NoteEditorPage = () => {
   if (!initialNote || !title) {
     return (
       <div className="p-4 md:p-8 flex items-center justify-center">
-        <div className="text-muted-foreground">Preparando editor...</div>
+        <div className="text-muted-foreground">Preparing editor...</div>
       </div>
     );
   }
@@ -250,7 +250,7 @@ const NoteEditorPage = () => {
             className="gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Volver
+            Back
           </Button>
           
           <div className="h-4 w-px bg-border" />
@@ -261,7 +261,7 @@ const NoteEditorPage = () => {
             trigger={
               <Button variant="default" size="sm" className="gap-2">
                 <Upload className="h-4 w-4" />
-                Importar MD
+                Import MD
               </Button>
             }
           />
@@ -276,7 +276,7 @@ const NoteEditorPage = () => {
               className="gap-2"
             >
               <Save className="h-4 w-4" />
-              Guardar
+              Save
             </Button>
           )}
           
@@ -287,7 +287,7 @@ const NoteEditorPage = () => {
             className="gap-2"
           >
             <Share2 className="h-4 w-4" />
-            Compartir
+            Share
           </Button>
           
           <ExportNoteMenu
@@ -306,7 +306,7 @@ const NoteEditorPage = () => {
             className="gap-2 bg-red-100 text-red-700 hover:bg-red-200 border-red-200"
           >
             <Trash2 className="h-4 w-4" />
-            Eliminar
+            Delete
           </Button>
         </div>
       </div>
@@ -320,14 +320,14 @@ const NoteEditorPage = () => {
             onChange={(e) => setTitle(e.target.value)}
             onBlur={handleTitleBlur}
             className="text-4xl font-bold bg-transparent focus:outline-none w-full mb-4 border-none placeholder:text-muted-foreground"
-            placeholder="Título de la nota"
+            placeholder="Note title"
           />
           
           <div onBlur={handleEditorBlur}>
             <MarkdownNoteEditor
               content={content}
               onChange={setContent}
-              placeholder="Comienza a escribir tu nota en Markdown..."
+              placeholder="Start writing your note in Markdown..."
               className="min-h-[60vh]"
             />
           </div>
@@ -339,7 +339,7 @@ const NoteEditorPage = () => {
         {isSaving && (
           <div className="flex items-center gap-2 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg shadow-md border border-blue-200">
             <div className="w-4 h-4 border-2 border-blue-400 border-t-transparent rounded-full animate-spin"></div>
-            <span className="text-sm font-medium">Guardando...</span>
+            <span className="text-sm font-medium">Saving...</span>
           </div>
         )}
         
@@ -348,19 +348,19 @@ const NoteEditorPage = () => {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
-            <span className="text-sm font-medium">Error al guardar</span>
+            <span className="text-sm font-medium">Save error</span>
           </div>
         )}
         
         {!isSaving && !saveError && hasUnsavedChanges.current && (
           <div className="flex items-center gap-2 px-3 py-2 bg-orange-100 text-orange-700 rounded-lg shadow-md border border-orange-200">
             <div className="w-2 h-2 bg-orange-400 rounded-full"></div>
-            <span className="text-sm font-medium">Sin guardar</span>
+            <span className="text-sm font-medium">Unsaved</span>
             <button
               onClick={() => saveNote()}
               className="ml-2 px-2 py-1 text-xs bg-orange-200 hover:bg-orange-300 text-orange-700 rounded transition-colors"
             >
-              Guardar
+              Save
             </button>
           </div>
         )}
@@ -370,7 +370,7 @@ const NoteEditorPage = () => {
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
-            <span className="text-sm font-medium">Guardado</span>
+            <span className="text-sm font-medium">Saved</span>
           </div>
         )}
       </div>

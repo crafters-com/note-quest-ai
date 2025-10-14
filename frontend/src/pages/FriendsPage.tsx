@@ -41,7 +41,7 @@ const FriendsPage = () => {
       console.error('Error loading friends:', error);
       toast({
         title: "Error",
-        description: "No se pudieron cargar los amigos",
+        description: "Could not load friends",
         variant: "destructive"
       });
     }
@@ -55,7 +55,7 @@ const FriendsPage = () => {
       console.error('Error loading pending requests:', error);
       toast({
         title: "Error",
-        description: "No se pudieron cargar las solicitudes pendientes",
+        description: "Could not load pending requests",
         variant: "destructive"
       });
     }
@@ -65,8 +65,8 @@ const FriendsPage = () => {
     try {
       await friendshipService.acceptRequest(requestId);
       toast({
-        title: "Éxito",
-        description: "Solicitud de amistad aceptada",
+        title: "Success",
+        description: "Friend request accepted",
         variant: "success",
       });
       await loadFriends();
@@ -75,7 +75,7 @@ const FriendsPage = () => {
       console.error('Error accepting friend request:', error);
       toast({
         title: "Error",
-        description: "No se pudo aceptar la solicitud",
+        description: "Could not accept the request",
         variant: "destructive"
       });
     }
@@ -85,8 +85,8 @@ const FriendsPage = () => {
     try {
       await friendshipService.rejectRequest(requestId);
       toast({
-        title: "Éxito",
-        description: "Solicitud de amistad rechazada",
+        title: "Success",
+        description: "Friend request rejected",
         variant: "success",
       });
       loadPendingRequests();
@@ -94,7 +94,7 @@ const FriendsPage = () => {
       console.error('Error rejecting friend request:', error);
       toast({
         title: "Error",
-        description: "No se pudo rechazar la solicitud",
+        description: "Could not reject the request",
         variant: "destructive"
       });
     }
@@ -104,8 +104,8 @@ const FriendsPage = () => {
     try {
       await friendshipService.removeFriend(friendshipId);
       toast({
-        title: "Éxito",
-        description: "Amigo eliminado",
+        title: "Success",
+        description: "Friend removed",
         variant: "success",
       });
       loadFriends();
@@ -113,7 +113,7 @@ const FriendsPage = () => {
       console.error('Error removing friend:', error);
       toast({
         title: "Error",
-        description: "No se pudo eliminar al amigo",
+        description: "Could not remove the friend",
         variant: "destructive"
       });
     }
@@ -135,14 +135,14 @@ const FriendsPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Mis Amigos</h1>
+          <h1 className="text-3xl font-bold text-foreground">My Friends</h1>
           <p className="text-muted-foreground">
-            Conecta y colabora con otros usuarios
+            Connect and collaborate with other users
           </p>
         </div>
         <Button className="w-fit" onClick={() => setIsSearchModalOpen(true)}>
           <UserPlus className="mr-2 h-4 w-4" />
-          Añadir Amigos
+          Add Friends
         </Button>
       </div>
 
@@ -161,7 +161,7 @@ const FriendsPage = () => {
             </div>
             <div>
               <p className="text-2xl font-bold">{friends.length}</p>
-              <p className="text-sm text-muted-foreground">Amigos</p>
+              <p className="text-sm text-muted-foreground">Friends</p>
             </div>
           </CardContent>
         </Card>
@@ -173,7 +173,7 @@ const FriendsPage = () => {
             </div>
             <div>
               <p className="text-2xl font-bold">{pendingRequests.length}</p>
-              <p className="text-sm text-muted-foreground">Solicitudes Pendientes</p>
+              <p className="text-sm text-muted-foreground">Pending Requests</p>
             </div>
           </CardContent>
         </Card>
@@ -185,7 +185,7 @@ const FriendsPage = () => {
             </div>
             <div>
               <p className="text-2xl font-bold">{friends.length + pendingRequests.length}</p>
-              <p className="text-sm text-muted-foreground">Conexiones Totales</p>
+              <p className="text-sm text-muted-foreground">Total Connections</p>
             </div>
           </CardContent>
         </Card>
@@ -198,10 +198,10 @@ const FriendsPage = () => {
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold flex items-center gap-2">
                 <Clock className="h-5 w-5 text-amber-500" />
-                Solicitudes Pendientes
+                Pending Requests
               </h2>
               <span className="text-sm text-muted-foreground">
-                {pendingRequests.length} {pendingRequests.length === 1 ? 'solicitud' : 'solicitudes'}
+                {pendingRequests.length} {pendingRequests.length === 1 ? 'request' : 'requests'}
               </span>
             </div>
           </CardHeader>
@@ -229,7 +229,7 @@ const FriendsPage = () => {
                       className="bg-green-100 text-green-700 hover:bg-green-200 border-green-200"
                     >
                       <UserCheck className="h-4 w-4 mr-2" />
-                      Aceptar
+                      Accept
                     </Button>
                     <Button
                       variant="outline"
@@ -238,7 +238,7 @@ const FriendsPage = () => {
                       className="bg-red-100 text-red-700 hover:bg-red-200 border-red-200"
                     >
                       <UserX className="h-4 w-4 mr-2" />
-                      Rechazar
+                      Reject
                     </Button>
                   </div>
                 </div>
@@ -254,13 +254,13 @@ const FriendsPage = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <h2 className="text-xl font-semibold flex items-center gap-2">
               <Users className="h-5 w-5 text-primary" />
-              Mis Amigos
+              My Friends
             </h2>
             {friends.length > 0 && (
               <div className="relative flex-1 max-w-xs">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
-                  placeholder="Buscar amigos..."
+                  placeholder="Search friends..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10"
@@ -275,18 +275,18 @@ const FriendsPage = () => {
               <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
                 <Users className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold mb-2">Aún no tienes amigos</h3>
+              <h3 className="text-lg font-semibold mb-2">You don't have friends yet</h3>
               <p className="text-muted-foreground mb-4">
-                Comienza a conectar con otros usuarios para colaborar
+                Start connecting with other users to collaborate
               </p>
               <Button onClick={() => setIsSearchModalOpen(true)}>
                 <UserPlus className="mr-2 h-4 w-4" />
-                Añadir Amigos
+                Add Friends
               </Button>
             </div>
           ) : filteredFriends.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-muted-foreground">No se encontraron amigos con ese nombre</p>
+              <p className="text-muted-foreground">No friends found with that name</p>
             </div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

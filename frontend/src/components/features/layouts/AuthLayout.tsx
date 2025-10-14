@@ -13,11 +13,11 @@ const BrandLogo = () => (
 const WelcomeMessage = () => (
   <div className="space-y-4">
     <h2 className="text-balance text-4xl font-bold leading-tight lg:text-5xl">
-      Bienvenido a <span className="text-primary">NoteQuest-AI</span>
+      Welcome to <span className="text-primary">NoteQuest-AI</span>
     </h2>
     <p className="text-pretty max-w-md text-lg leading-relaxed text-muted-foreground">
-      Transforma tus ideas en notas inteligentes con el poder de la inteligencia
-      artificial. Organiza, busca y conecta tu conocimiento como nunca antes.
+      Transform your ideas into intelligent notes with the power of artificial
+      intelligence. Organize, search, and connect your knowledge like never before.
     </p>
   </div>
 );
