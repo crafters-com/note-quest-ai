@@ -1,4 +1,4 @@
-# files/views.py
+# backend/files/views.py
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -7,60 +7,111 @@ from .models import File
 from .serializers import FileSerializer
 from .permissions import IsOwnerOfNote
 
-# task: intenta encolar si existe, si no deja queued (no rompe)
+# Intentamos importar Celery task; si no está, pondremos fallback a process_file_sync
 try:
-    from .tasks import process_file_task
+    from .tasks import process_file_task, process_file_sync
 except Exception:
     process_file_task = None
+    try:
+        from .tasks import process_file_sync
+    except Exception:
+        process_file_sync = None
+
+# Para fallback asíncrono (si no hay Celery)
+import threading
+import logging
+logger = logging.getLogger(__name__)
 
 class FileViewSet(viewsets.ModelViewSet):
-    queryset = File.objects.all()
+    queryset = File.objects.select_related('note', 'note__notebook').all()
     serializer_class = FileSerializer
     permission_classes = [IsAuthenticated, IsOwnerOfNote]
 
     def get_queryset(self):
-        # Solo devolver archivos de notas del usuario
-        user = self.request.user
-        return File.objects.filter(note__notebook__user=user).select_related('note')
+        qs = super().get_queryset()
+        note_id = self.kwargs.get('note_id') or self.request.query_params.get('note')
+        if note_id:
+            qs = qs.filter(note_id=note_id)
+        qs = qs.filter(note__notebook__user=self.request.user)
+        return qs.order_by('-uploaded_at')
 
-    def list(self, request, note_id=None, *args, **kwargs):
-        # Lista archivos de una nota específica (ruta anidada)
-        if note_id is None:
-            return Response({"detail": "note_id is required in URL."}, status=status.HTTP_400_BAD_REQUEST)
-        qs = self.get_queryset().filter(note_id=note_id)
-        page = self.paginate_queryset(qs)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(qs, many=True)
-        return Response(serializer.data)
-
-    def create(self, request, note_id=None, *args, **kwargs):
-        if note_id is None:
-            return Response({'detail': 'note_id is required in URL.'}, status=status.HTTP_400_BAD_REQUEST)
-
-        data = request.data.copy()
-        data['note'] = note_id
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        instance = serializer.instance
-
-        # Asegurar estado queued y guardar
-        instance.processing_status = 'queued'
-        instance.save(update_fields=['processing_status'])
-
-        # Intentar encolar task si está disponible (Celery)
+    def _enqueue_processing(self, instance_id):
+        """
+        Intenta encolar con Celery; si no existe Celery, lanza en un thread.
+        """
         if process_file_task:
             try:
-                process_file_task.delay(instance.id)
+                process_file_task.delay(instance_id)
+                return True
+            except Exception as e:
+                logger.warning("Celery delay failed: %s. Falling back to thread. ", e)
+
+        # Fallback: llamada asíncrona en hilo
+        if process_file_sync:
+            def worker():
+                try:
+                    process_file_sync(instance_id)
+                except Exception as e:
+                    logger.exception("Fallback thread processing failed for file %s: %s", instance_id, e)
+            t = threading.Thread(target=worker, daemon=True)
+            t.start()
+            return True
+
+        return False
+
+    def create(self, request, *args, **kwargs):
+        """
+        Soporta subida múltiple: puede recibir varios campos 'file' (getlist).
+        Si hay múltiples archivos, devuelve lista de objetos.
+        """
+        # si vienen varios files
+        files = request.FILES.getlist('file')
+        created = []
+
+        # Si no viene como lista, DRF aún lo acepta como request.FILES['file']
+        if not files:
+            single = request.FILES.get('file')
+            if single:
+                files = [single]
+
+        # Si no hay archivos en la petición, devolver error
+        if not files:
+            return Response({"detail": "No se encontró archivo en la petición (campo 'file')."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # Determinar note: preferimos note_id de kwargs (ruta anidada)
+        note_id = self.kwargs.get('note_id') or request.data.get('note') or request.POST.get('note')
+        if not note_id:
+            return Response({"detail": "Se requiere 'note' (id) para asociar archivos."},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+        # validar nota y permisos (IsOwnerOfNote.has_permission debería cubrir esto, pero validamos explícitamente)
+        from notes.models import Note
+        note = get_object_or_404(Note, pk=note_id)
+        if getattr(note.notebook, 'user', None) != request.user:
+            return Response({"detail": "No tienes permiso sobre la nota indicada."},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        responses = []
+        for f in files:
+            data = {'note': note.id, 'file': f}
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            instance = serializer.save()  # modelo guarda archivo
+
+            # marcar queued y encolar procesamiento (async)
+            try:
+                instance.processing_status = 'queued'
+                instance.save(update_fields=['processing_status'])
             except Exception:
-                # no romper, dejar en queued para procesar manualmente
                 pass
 
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+            # Encolar o fallback thread
+            self._enqueue_processing(instance.id)
 
-    # retrieve and destroy usan permisos de objeto por defecto (IsOwnerOfNote)
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(request, *args, **kwargs)
+            responses.append(self.get_serializer(instance).data)
+
+        # Si solo creamos 1, devolver objeto; si muchos, devolver lista
+        if len(responses) == 1:
+            return Response(responses[0], status=status.HTTP_201_CREATED)
+        return Response(responses, status=status.HTTP_201_CREATED)
