@@ -78,7 +78,7 @@ export const SearchFriendsModal = ({ open, onOpenChange, onSuccess }: SearchFrie
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] bg-white">
         <DialogHeader>
           <DialogTitle>Añadir Amigos</DialogTitle>
           <DialogDescription>
@@ -102,10 +102,10 @@ export const SearchFriendsModal = ({ open, onOpenChange, onSuccess }: SearchFrie
             ) : searchResults.length > 0 ? (
               <ul className="space-y-2">
                 {searchResults.map((user) => (
-                  <li key={user.id} className="flex items-center justify-between p-2 border rounded">
+                  <li key={user.id} className="flex items-center justify-between p-3 border border-gray-200 rounded-lg bg-white hover:bg-gray-50 transition-colors">
                     <div>
-                      <p className="font-medium">{user.username}</p>
-                      <p className="text-sm text-muted-foreground">{user.email}</p>
+                      <p className="font-medium text-gray-900">{user.username}</p>
+                      <p className="text-sm text-gray-500">{user.email}</p>
                     </div>
                     <Button
                       variant="outline"
@@ -125,7 +125,7 @@ export const SearchFriendsModal = ({ open, onOpenChange, onSuccess }: SearchFrie
                 ))}
               </ul>
             ) : searchQuery ? (
-              <p className="text-center text-muted-foreground">No se encontraron usuarios</p>
+              <p className="text-center text-gray-500 py-8">No se encontraron usuarios</p>
             ) : null}
           </div>
         </div>
