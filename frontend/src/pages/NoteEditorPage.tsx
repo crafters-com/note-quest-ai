@@ -4,6 +4,10 @@ import { useData } from "@/hooks/useData";
 import { noteService } from "@/services/noteService";
 import { useDebounce } from "@/hooks/useDebounce";
 import MarkdownNoteEditor from "@/components/features/notes/MarkdownNoteEditor";
+import ExportNoteMenu from "@/components/features/notes/ExportNoteMenu";
+import ImportMarkdownModal from "@/components/features/notes/ImportMarkdownModal";
+import { Button } from "@/components/ui/Button";
+import { ArrowLeft, Save } from "lucide-react";
 
 const NoteEditorPage = () => {
   const { noteId } = useParams<{ noteId: string }>();
@@ -139,6 +143,26 @@ const NoteEditorPage = () => {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [saveNote]);
 
+  // Función para manejar importación de archivos
+  const handleImportMarkdown = async (importTitle: string, importContent: string) => {
+    if (!initialNote) return;
+    
+    try {
+      // Crear una nueva nota con el contenido importado
+      const newNote = await noteService.createNote({
+        title: importTitle,
+        content: importContent,
+        notebook: initialNote.notebook
+      });
+      
+      // Navegar a la nueva nota
+      navigate(`/notes/${newNote.id}`);
+    } catch (error) {
+      console.error('Error al importar nota:', error);
+      throw new Error('Error al importar el archivo');
+    }
+  };
+
   // Función para manejar blur del título (guardar inmediatamente)
   const handleTitleBlur = () => {
     if (hasUnsavedChanges.current) {
@@ -183,36 +207,71 @@ const NoteEditorPage = () => {
   }
 
   return (
-    <div className="p-4 md:p-8 relative">
-      {/* Barra superior con botón de volver */}
-      <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={handleGoBack}
-          className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          Volver
-        </button>
+    <div className="flex flex-col h-screen bg-background">
+      {/* Barra de herramientas */}
+      <div className="flex items-center justify-between px-4 py-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="default"
+            size="sm"
+            onClick={handleGoBack}
+            className="gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Volver
+          </Button>
+          
+          <div className="h-4 w-px bg-border" />
+          
+          <ImportMarkdownModal
+            onImport={handleImportMarkdown}
+            notebookId={initialNote?.notebook || 0}
+          />
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {hasUnsavedChanges.current && !isSaving && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={() => saveNote()}
+              className="gap-2"
+            >
+              <Save className="h-4 w-4" />
+              Guardar
+            </Button>
+          )}
+          
+          <ExportNoteMenu
+            noteTitle={title}
+            noteContent={content}
+            variant="default"
+            size="sm"
+          />
+        </div>
       </div>
-
-      <input
-        type="text"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        onBlur={handleTitleBlur}
-        className="text-4xl font-bold bg-transparent focus:outline-none w-full mb-4 border-none placeholder:text-muted-foreground"
-        placeholder="Título de la nota"
-      />
       
-      <div onBlur={handleEditorBlur}>
-        <MarkdownNoteEditor
-          content={content}
-          onChange={setContent}
-          placeholder="Comienza a escribir tu nota en Markdown..."
-          className="min-h-[60vh]"
-        />
+      {/* Editor */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="p-4 md:p-8">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={handleTitleBlur}
+            className="text-4xl font-bold bg-transparent focus:outline-none w-full mb-4 border-none placeholder:text-muted-foreground"
+            placeholder="Título de la nota"
+          />
+          
+          <div onBlur={handleEditorBlur}>
+            <MarkdownNoteEditor
+              content={content}
+              onChange={setContent}
+              placeholder="Comienza a escribir tu nota en Markdown..."
+              className="min-h-[60vh]"
+            />
+          </div>
+        </div>
       </div>
 
       {/* Indicador de estado flotante en la esquina inferior derecha */}

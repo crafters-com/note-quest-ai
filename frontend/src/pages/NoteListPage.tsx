@@ -6,8 +6,9 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { Button } from "@/components/ui/Button";
-import { Plus } from "lucide-react";
+import { Plus, ArrowLeft } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/Card";
+import ImportMarkdownModal from "@/components/features/notes/ImportMarkdownModal";
 
 
 const NoteListPage = () => {
@@ -23,6 +24,24 @@ const NoteListPage = () => {
 
   if (loading) return <div>Cargando notas...</div>;
   if (error) return <div className="text-destructive">{error}</div>;
+
+  // Función para manejar importación de archivos
+  const handleImportMarkdown = async (importTitle: string, importContent: string) => {
+    try {
+      // Crear una nueva nota con el contenido importado
+      const newNote = await noteService.createNote({
+        title: importTitle,
+        content: importContent,
+        notebook: numericId
+      });
+      
+      // Navegar a la nueva nota
+      navigate(`/notes/${newNote.id}`);
+    } catch (error) {
+      console.error('Error al importar nota:', error);
+      throw new Error('Error al importar el archivo');
+    }
+  };
 
   const handleCreateNote = async () => {
     setIsCreating(true);
@@ -48,25 +67,41 @@ const NoteListPage = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Notas del Notebook</h1>
+        <div className="flex items-center gap-4">
+          <Button 
+            variant="default" 
+            size="icon"
+            onClick={() => navigate('/notebooks')}
+            className="flex items-center justify-center"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">Notas del Notebook</h1>
+          </div>
         </div>
-        <Button onClick={handleCreateNote} disabled={isCreating}>
-          <Plus className="mr-2 h-4 w-4" />
-          {isCreating ? "Creando..." : "Crear Nota"}
-        </Button>
+        <div className="flex gap-2">
+          <ImportMarkdownModal
+            onImport={handleImportMarkdown}
+            notebookId={numericId}
+          />
+          <Button onClick={handleCreateNote} disabled={isCreating}>
+            <Plus className="mr-2 h-4 w-4" />
+            {isCreating ? "Creando..." : "Crear Nota"}
+          </Button>
+        </div>
       </div>
       
       {/* 👇 1. Añadimos 'null check'. Si notes es null, su longitud es 0. 👇 */}
       {(notes?.length ?? 0) === 0 ? (
         <p>Este notebook aún no tiene notas.</p>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {notes?.map((note) => (
   <Link key={note.id} to={`/notes/${note.id}`}>
-    <Card className="hover:bg-accent transition-colors cursor-pointer">
-      <CardContent className="p-4">
-        <h3 className="font-semibold">{note.title}</h3>
+    <Card className="hover:bg-accent transition-colors cursor-pointer mb-4">
+      <CardContent className="p-6">
+        <h3 className="font-semibold text-lg">{note.title}</h3>
         {/* Opcional: Aquí podrías mostrar un pequeño extracto del contenido */}
       </CardContent>
     </Card>

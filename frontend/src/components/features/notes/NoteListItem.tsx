@@ -1,5 +1,4 @@
 import { Card, CardContent } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
   DropdownMenu,
@@ -7,14 +6,38 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/Dropdown";
-import { Download, Eye, FileText, Trash2 } from "lucide-react";
-import type { Note } from "@/components/features/notes/NoteCard";
+import { Eye, FileText, Trash2 } from "lucide-react";
+import ExportNoteMenu from "./ExportNoteMenu";
+import { Note } from "@/services/noteService";
 
 export interface NoteListItemProps {
   note: Note;
+  onView?: (noteId: number) => void;
+  onDelete?: (noteId: number) => void;
 }
 
-const NoteListItem: React.FC<NoteListItemProps> = ({ note }) => {
+const NoteListItem: React.FC<NoteListItemProps> = ({ note, onView, onDelete }) => {
+  // Función para extraer una vista previa del contenido
+  const getContentPreview = (content: string, maxLength: number = 100) => {
+    if (!content) return "Sin contenido";
+    const textContent = content.replace(/[#*`\[\]]/g, ''); // Remover markdown básico
+    return textContent.length > maxLength 
+      ? textContent.substring(0, maxLength) + "..."
+      : textContent;
+  };
+
+  const handleView = () => {
+    if (onView) {
+      onView(note.id);
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete(note.id);
+    }
+  };
+
   return (
     <Card className="group hover:shadow-md transition-all duration-200">
       <CardContent className="p-4">
@@ -32,23 +55,23 @@ const NoteListItem: React.FC<NoteListItemProps> = ({ note }) => {
                   {note.title}
                 </h3>
                 <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
-                  {note.description}
+                  {getContentPreview(note.content)}
                 </p>
                 <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
-                  <span>{note.subject}</span>
-                  <span>{new Date(note.date).toLocaleDateString("es-ES")}</span>
-                  <span>{note.pages} páginas</span>
+                  <span>Markdown</span>
+                  <span>{new Date(note.updated_at).toLocaleDateString("es-ES")}</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-2 ml-4">
-                <div className="flex gap-1">
-                  {note.tags.slice(0, 3).map((tag) => (
-                    <Badge key={tag} variant="outline" className="text-xs">
-                      {tag}
-                    </Badge>
-                  ))}
-                </div>
+                <ExportNoteMenu
+                  noteTitle={note.title}
+                  noteContent={note.content}
+                  variant="default"
+                  size="sm"
+                  showText={false}
+                />
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -73,15 +96,11 @@ const NoteListItem: React.FC<NoteListItemProps> = ({ note }) => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleView}>
                       <Eye className="mr-2 h-4 w-4" />
                       Ver
                     </DropdownMenuItem>
-                    <DropdownMenuItem>
-                      <Download className="mr-2 h-4 w-4" />
-                      Descargar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
+                    <DropdownMenuItem className="text-destructive" onClick={handleDelete}>
                       <Trash2 className="mr-2 h-4 w-4" />
                       Eliminar
                     </DropdownMenuItem>
