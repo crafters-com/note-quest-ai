@@ -31,6 +31,11 @@ const navigation = [
     icon: Home,
   },
   {
+    name: "Amigos",
+    href: "/friends",
+    icon: User,
+  },
+  {
     name: "Mis notebooks",
     href: "/notebooks",
     icon: BookOpen,
@@ -44,11 +49,6 @@ const navigation = [
     name: "Quizzes",
     href: "/quizzes",
     icon: HelpCircle,
-  },
-  {
-    name: "Perfil",
-    href: "/profile",
-    icon: User,
   },
 ];
 

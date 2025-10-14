@@ -18,5 +18,17 @@ class Friendship(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    def accept(self):
+        self.status = self.ACCEPTED
+        self.save()
+
+    def reject(self):
+        self.status = self.REJECTED
+        self.save()
+
+    @property
+    def is_pending(self):
+        return self.status == self.PENDING
+
     class Meta:
         unique_together = ('sender', 'receiver')
