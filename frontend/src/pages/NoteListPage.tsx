@@ -85,7 +85,7 @@ const NoteListPage = () => {
             onImport={handleImportMarkdown}
             notebookId={numericId}
           />
-          <Button onClick={handleCreateNote} disabled={isCreating}>
+          <Button onClick={handleCreateNote} disabled={isCreating} size="default">
             <Plus className="mr-2 h-4 w-4" />
             {isCreating ? "Creando..." : "Crear Nota"}
           </Button>

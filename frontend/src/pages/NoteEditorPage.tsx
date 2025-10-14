@@ -7,7 +7,7 @@ import MarkdownNoteEditor from "@/components/features/notes/MarkdownNoteEditor";
 import ExportNoteMenu from "@/components/features/notes/ExportNoteMenu";
 import ImportMarkdownModal from "@/components/features/notes/ImportMarkdownModal";
 import { Button } from "@/components/ui/Button";
-import { ArrowLeft, Save } from "lucide-react";
+import { ArrowLeft, Save, Upload } from "lucide-react";
 
 const NoteEditorPage = () => {
   const { noteId } = useParams<{ noteId: string }>();
@@ -226,6 +226,12 @@ const NoteEditorPage = () => {
           <ImportMarkdownModal
             onImport={handleImportMarkdown}
             notebookId={initialNote?.notebook || 0}
+            trigger={
+              <Button variant="default" size="sm" className="gap-2">
+                <Upload className="h-4 w-4" />
+                Importar MD
+              </Button>
+            }
           />
         </div>
         

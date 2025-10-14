@@ -91,7 +91,7 @@ const ImportMarkdownModal = ({ onImport, notebookId, trigger }: ImportMarkdownMo
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button variant="default">
+          <Button variant="default" size="default">
             <Upload className="h-4 w-4 mr-2" />
             Importar MD
           </Button>
