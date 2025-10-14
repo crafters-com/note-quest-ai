@@ -1,6 +1,11 @@
 # files/processing_helpers.py
 import re
+import easyocr
+from PIL import Image
+import numpy as np
+import io
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -62,18 +67,53 @@ def pdf_to_md(path: str) -> str:
         logger.exception("Error procesando PDF: %s", e)
         return ''
 
-def ocr_image_to_md(path: str, lang: str = 'spa') -> str:
-    """OCR de imágenes (PNG/JPG) usando pytesseract. Requiere Tesseract instalado en sistema."""
+# Define un lector global (se inicializa una sola vez)
+_reader = easyocr.Reader(['es', 'en'], gpu=False)
+
+def ocr_image_to_md(file_obj, lang='es'):
+    """
+    Realiza OCR sobre una imagen y devuelve texto en formato Markdown.
+    Compatible con objetos FieldFile, rutas, o binarios.
+    """
     try:
-        from PIL import Image
-        import pytesseract
+        # 1️⃣ Si llega como string con la ruta (lo que ocurre en tu caso)
+        if isinstance(file_obj, str) and os.path.exists(file_obj):
+            results = _reader.readtext(file_obj, detail=0)
+
+        # 2️⃣ Si el archivo tiene una ruta en el sistema (FieldFile)
+        elif hasattr(file_obj, 'path') and os.path.exists(file_obj.path):
+            results = _reader.readtext(file_obj.path, detail=0)
+
+        # 3️⃣ Si el archivo tiene método open() (FieldFile típico de Django)
+        elif hasattr(file_obj, 'open'):
+            with file_obj.open('rb') as f:
+                file_bytes = f.read()
+                image = Image.open(io.BytesIO(file_bytes)).convert("RGB")
+                image_np = np.array(image)
+                results = _reader.readtext(image_np, detail=0)
+
+        # 4️⃣ Si el archivo es un file-like o bytes
+        elif hasattr(file_obj, 'read'):
+            file_bytes = file_obj.read()
+            file_obj.seek(0)
+            image = Image.open(io.BytesIO(file_bytes)).convert("RGB")
+            image_np = np.array(image)
+            results = _reader.readtext(image_np, detail=0)
+
+        elif isinstance(file_obj, (bytes, bytearray)):
+            image = Image.open(io.BytesIO(file_obj)).convert("RGB")
+            image_np = np.array(image)
+            results = _reader.readtext(image_np, detail=0)
+
+        else:
+            raise ValueError(f"Tipo de archivo no soportado para OCR: {type(file_obj)}")
+
+        text = "\n".join(results).strip()
+        if not text:
+            text = "[No se detectó texto legible en la imagen]"
+
+        return text
+
     except Exception as e:
-        logger.warning("Pillow o pytesseract no instalado: %s", e)
-        return ''
-    try:
-        img = Image.open(path)
-        text = pytesseract.image_to_string(img, lang=lang)
-        return text_to_md(text)
-    except Exception as e:
-        logger.exception("Error haciendo OCR a imagen: %s", e)
-        return ''
+        logger.error(f"Error haciendo OCR a imagen con EasyOCR: {e}")
+        return f"[Error OCR: {str(e)}]"
