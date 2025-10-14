@@ -1,39 +1,54 @@
-# files/tasks.py
+# backend/files/tasks.py
 import logging
 import os
 
 from .models import File
-from .processing_helpers import txt_to_md, docx_to_md, pdf_to_md, ocr_image_to_md
+from .processing_helpers import text_to_md, docx_to_md, pdf_to_md, ocr_image_to_md
 
 logger = logging.getLogger(__name__)
 
 def index_file_for_rag_sync(file_id: int):
     """
     Stub de indexación RAG para desarrollo.
-    Aquí sólo registramos el evento; más adelante generaremos embeddings y guardaremos en DB/Vector store.
     """
     try:
         f = File.objects.get(pk=file_id)
-        logger.info("index_file_for_rag_sync: file %s ready for indexing (user: %s, note: %s)", f.filename, f.note.notebook.user_id if f.note else None, f.note_id)
-        # TODO: chunk text, generar embeddings y guardar en vector DB
+        logger.info("Indexing file (stub) %s", f.id)
         return True
     except File.DoesNotExist:
-        logger.warning("index_file_for_rag_sync: file %s not found", file_id)
         return False
-    except Exception as e:
-        logger.exception("index_file_for_rag_sync error: %s", e)
+    except Exception:
+        logger.exception("Error indexando archivo")
         return False
 
+def _append_md_to_note_if_configured(file_obj: File, md_text: str):
+    """
+    Por defecto, agregamos el md_content al campo Note.content.
+    Si deseas cambiar este comportamiento, modifica aquí.
+    """
+    if not md_text:
+        return
+    try:
+        note = file_obj.note
+        # Append with separator si no vacío
+        sep = "\n\n---\n\n"
+        if not getattr(note, 'content', None):
+            note.content = md_text
+        else:
+            note.content = note.content + sep + md_text
+        note.save(update_fields=['content'])
+    except Exception:
+        logger.exception("No se pudo anexar md_content a la nota %s", getattr(file_obj, 'note_id', None))
 
 def process_file_sync(file_id: int):
     """
-    Procesamiento síncrono: convertir archivo a md_content y actualizar estado.
-    Diseñado para pruebas en shell: process_file_sync(<file_id>)
+    Procesamiento síncrono del archivo: extrae texto, convierte a md, guarda en modelo
+    y opcionalmente actualiza la nota con el md.
     """
     try:
         f = File.objects.get(pk=file_id)
     except File.DoesNotExist:
-        logger.error("process_file_sync: File %s does not exist", file_id)
+        logger.warning("File %s does not exist", file_id)
         return False
 
     try:
@@ -41,37 +56,60 @@ def process_file_sync(file_id: int):
         f.processing_error = ''
         f.save(update_fields=['processing_status', 'processing_error'])
 
-        file_path = f.file.path
-        ext = (f.file_type or '').lower()
+        # Determinar extensión
+        try:
+            ext = (f.file.name.split('.')[-1] or '').lower()
+        except Exception:
+            ext = ''
 
         md_text = ''
+        # Llamadas a helpers dependiendo de ext
+        if ext in ('txt', 'md'):
+            try:
+                with f.file.open('r', encoding='utf-8', errors='ignore') as fh:
+                    raw = fh.read()
+            except Exception:
+                with f.file.open('rb') as fh:
+                    raw = fh.read().decode('utf-8', errors='ignore')
+            md_text = text_to_md(raw)
 
-        if ext in ['txt', 'md']:
-            md_text = txt_to_md(file_path)
-        elif ext in ['docx']:
-            md_text = docx_to_md(file_path)
-        elif ext in ['pdf']:
-            md_text = pdf_to_md(file_path)
-            # si pdf_to_md devolvió vacío, podríamos intentar OCR por páginas (pendiente)
-        elif ext in ['png', 'jpg', 'jpeg']:
-            md_text = ocr_image_to_md(file_path)
+        elif ext == 'docx':
+            md_text = docx_to_md(f.file.path if hasattr(f.file, 'path') else f.file)
+        elif ext == 'pdf':
+            md_text = pdf_to_md(f.file.path if hasattr(f.file, 'path') else f.file)
+        elif ext in ('png', 'jpg', 'jpeg'):
+            md_text = ocr_image_to_md(f.file.path if hasattr(f.file, 'path') else f.file)
         else:
-            logger.warning("process_file_sync: extensión no soportada para procesamiento: %s", ext)
-            md_text = ''
+            # Intentar leer como texto
+            try:
+                with f.file.open('r', encoding='utf-8', errors='ignore') as fh:
+                    raw = fh.read()
+                md_text = text_to_md(raw)
+            except Exception:
+                md_text = ''
 
-        # Guardar resultado
-        f.md_content = md_text if md_text is not None else ''
+        # Guardar resultados
+        f.md_content = md_text
         f.processing_status = 'done'
-        f.save(update_fields=['md_content', 'processing_status'])
-        logger.info("process_file_sync: file %s processed successfully", f.id)
+        f.processing_error = ''
+        f.save(update_fields=['md_content', 'processing_status', 'processing_error'])
 
-        # Indexar para RAG (stub)
-        index_file_for_rag_sync(f.id)
+        # (Opcional) anexar resultado a la nota asociada
+        try:
+            _append_md_to_note_if_configured(f, md_text)
+        except Exception:
+            logger.exception("Fallo anexando md a nota para file %s", f.id)
+
+        # Indexación stub (RAG)
+        try:
+            index_file_for_rag_sync(f.id)
+        except Exception:
+            logger.exception("Index stub failed (ignored)")
 
         return True
 
     except Exception as e:
-        logger.exception("process_file_sync error processing file %s: %s", file_id, e)
+        logger.exception("Error procesando archivo %s: %s", file_id, e)
         try:
             f.processing_status = 'error'
             f.processing_error = str(e)
@@ -80,7 +118,7 @@ def process_file_sync(file_id: int):
             pass
         return False
 
-# Si Celery está disponible, registramos una tarea, si no definimos process_file_task = None
+# Si Celery está disponible, registramos una tarea; si no, process_file_task queda None
 try:
     from celery import shared_task
 
