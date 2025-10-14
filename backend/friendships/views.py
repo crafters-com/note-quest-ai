@@ -28,8 +28,6 @@ class FriendshipViewSet(viewsets.ModelViewSet):
         return queryset
 
     def create(self, request, *args, **kwargs):
-        print("Datos recibidos:", request.data)  # Para depuración
-        
         receiver_id = request.data.get('receiver_id')
         if not receiver_id:
             return Response(
@@ -66,7 +64,6 @@ class FriendshipViewSet(viewsets.ModelViewSet):
             headers = self.get_success_headers(serializer.data)
             return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
         except serializers.ValidationError as e:
-            print("Error de validación:", e.detail)  # Para depuración
             return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False, methods=['get'])
@@ -104,3 +101,9 @@ class FriendshipViewSet(viewsets.ModelViewSet):
         friendship.status = Friendship.REJECTED
         friendship.save()
         return Response(status=status.HTTP_200_OK)
+
+    def perform_destroy(self, instance):
+        if instance.sender != self.request.user and instance.receiver != self.request.user:
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("No tienes permiso para eliminar esta amistad")
+        instance.delete()
