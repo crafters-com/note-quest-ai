@@ -62,3 +62,52 @@ def generate_quiz_view(request, note_id):
         return Response({"quiz": quiz})
     except Note.DoesNotExist:
         return Response({"error": "Nota no encontrada."}, status=404)
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def share_note(request, note_id):
+    """Comparte una nota con un amigo creando una copia en su notebook."""
+    try:
+        # Verificar que la nota existe y pertenece al usuario actual
+        note = Note.objects.get(id=note_id, notebook__user=request.user)
+        
+        # Obtener el ID del amigo del request
+        friend_id = request.data.get('friend_id')
+        if not friend_id:
+            return Response({"error": "friend_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verificar que son amigos
+        friend = get_object_or_404(User, id=friend_id)
+        friendship_exists = Friendship.objects.filter(
+            models.Q(sender=request.user, receiver=friend, status='accepted') |
+            models.Q(sender=friend, receiver=request.user, status='accepted')
+        ).exists()
+        
+        if not friendship_exists:
+            return Response({"error": "You can only share notes with friends"}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Buscar o crear el notebook "Shared Notes" del amigo
+        shared_notebook, created = Notebook.objects.get_or_create(
+            user=friend,
+            name="Shared Notes",
+            defaults={'subject': 'Shared'}
+        )
+        
+        # Crear una copia de la nota en el notebook del amigo
+        shared_note = Note.objects.create(
+            notebook=shared_notebook,
+            title=f"{note.title} (shared by {request.user.username})",
+            content=note.content,
+            summary=note.summary,
+            quiz_data=note.quiz_data
+        )
+        
+        return Response({
+            "message": "Note shared successfully",
+            "shared_note_id": shared_note.id
+        }, status=status.HTTP_201_CREATED)
+        
+    except Note.DoesNotExist:
+        return Response({"error": "Note not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
