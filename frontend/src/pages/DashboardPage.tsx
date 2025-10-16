@@ -6,6 +6,12 @@ import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/Dropdown";
 import { 
   FileText, 
   Plus, 
@@ -13,11 +19,13 @@ import {
   BookOpen,
   TrendingUp,
   Clock,
-  Target
+  Target,
+  ChevronDown,
+  Check
 } from 'lucide-react';
 
 const DashboardPage = () => {
-  const { selectedNotebook, notebooks } = useNotebook();
+  const { selectedNotebook, notebooks, setSelectedNotebook } = useNotebook();
   
   const { data: notes, loading, error } = useData<Note[]>(
     () => selectedNotebook ? noteService.getNotes(selectedNotebook.id) : Promise.resolve([]),
@@ -52,20 +60,71 @@ const DashboardPage = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
-          <p className="text-muted-foreground">
-            {selectedNotebook 
-              ? `Notas de "${selectedNotebook.name}" - ${selectedNotebook.subject}`
-              : 'Selecciona un notebook para ver tus notas'
-            }
-          </p>
+        <div className="flex-1">
+          <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
+          
+          {/* Notebook Selector */}
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium text-gray-600">Notebook:</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="justify-between min-w-[240px] bg-white hover:bg-gray-50 border-gray-200 shadow-sm"
+                >
+                  {selectedNotebook ? (
+                    <>
+                      <span className="truncate font-medium text-gray-900">{selectedNotebook.name}</span>
+                      <ChevronDown className="ml-2 h-4 w-4 text-gray-500" />
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-gray-500">Select notebook</span>
+                      <ChevronDown className="ml-2 h-4 w-4 text-gray-400" />
+                    </>
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[280px] bg-white border-gray-200 shadow-lg">
+                {notebooks && notebooks.length > 0 ? (
+                  notebooks.map((notebook) => (
+                    <DropdownMenuItem
+                      key={notebook.id}
+                      onClick={() => setSelectedNotebook(notebook)}
+                      className="cursor-pointer hover:bg-gray-50 focus:bg-gray-50"
+                    >
+                      <div className="flex items-center justify-between w-full py-1">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-gray-900 truncate">{notebook.name}</p>
+                          <p className="text-xs text-gray-500 truncate">{notebook.subject}</p>
+                        </div>
+                        {selectedNotebook?.id === notebook.id && (
+                          <Check className="ml-2 h-4 w-4 text-primary flex-shrink-0" />
+                        )}
+                      </div>
+                    </DropdownMenuItem>
+                  ))
+                ) : (
+                  <DropdownMenuItem disabled>
+                    <span className="text-gray-400">No notebooks</span>
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+          
+          {selectedNotebook && (
+            <p className="text-sm text-muted-foreground mt-2">
+              {selectedNotebook.subject}
+            </p>
+          )}
         </div>
         {selectedNotebook && (
           <Link to={`/notebooks/${selectedNotebook.id}/notes`}>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Nueva Nota
+              New Note
             </Button>
           </Link>
         )}
@@ -75,39 +134,39 @@ const DashboardPage = () => {
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total de Notas</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Notes</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalNotes}</div>
             <p className="text-xs text-muted-foreground">
-              {selectedNotebook ? `en ${selectedNotebook.name}` : 'en todos los notebooks'}
+              {selectedNotebook ? `in ${selectedNotebook.name}` : 'in all notebooks'}
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Notebooks Totales</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Notebooks</CardTitle>
             <BookOpen className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalNotebooks}</div>
             <p className="text-xs text-muted-foreground">
-              carpetas de estudio
+              study folders
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Actividad Reciente</CardTitle>
+            <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{recentNotes.length}</div>
             <p className="text-xs text-muted-foreground">
-              notas recientes
+              recent notes
             </p>
           </CardContent>
         </Card>
@@ -118,13 +177,13 @@ const DashboardPage = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <BookOpen className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Selecciona un Notebook</h3>
+            <h3 className="text-lg font-semibold mb-2">Select a Notebook</h3>
             <p className="text-muted-foreground text-center max-w-md mb-4">
-              Para ver tus notas y empezar a estudiar, selecciona un notebook del menú lateral.
+              To view your notes and start studying, select a notebook from the side menu.
             </p>
             <Link to="/notebooks">
               <Button variant="outline">
-                Ver todos los Notebooks
+                View All Notebooks
               </Button>
             </Link>
           </CardContent>
@@ -133,14 +192,14 @@ const DashboardPage = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-12">
             <FileText className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No hay notas aún</h3>
+            <h3 className="text-lg font-semibold mb-2">No notes yet</h3>
             <p className="text-muted-foreground text-center max-w-md mb-4">
-              Este notebook está vacío. ¡Crea tu primera nota para empezar a estudiar!
+              This notebook is empty. Create your first note to start studying!
             </p>
             <Link to={`/notebooks/${selectedNotebook.id}/notes`}>
               <Button>
                 <Plus className="mr-2 h-4 w-4" />
-                Crear Primera Nota
+                Create First Note
               </Button>
             </Link>
           </CardContent>
@@ -152,7 +211,7 @@ const DashboardPage = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Clock className="h-5 w-5" />
-                Notas Recientes
+                Recent Notes
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -169,7 +228,7 @@ const DashboardPage = () => {
                         <h4 className="font-semibold text-foreground truncate text-lg mb-1">{note.title}</h4>
                         <p className="text-sm text-muted-foreground flex items-center gap-2">
                           <Calendar className="h-4 w-4" />
-                          {new Date(note.updated_at).toLocaleDateString('es-ES')}
+                          {new Date(note.updated_at).toLocaleDateString('en-US')}
                         </p>
                       </div>
                     </div>
@@ -181,10 +240,10 @@ const DashboardPage = () => {
                       <FileText className="h-8 w-8 text-muted-foreground/50" />
                     </div>
                     <p className="text-muted-foreground font-medium">
-                      No hay notas recientes
+                      No recent notes
                     </p>
                     <p className="text-sm text-muted-foreground/70 mt-1">
-                      Las notas que crees aparecerán aquí
+                      Notes you create will appear here
                     </p>
                   </div>
                 )}
@@ -197,7 +256,7 @@ const DashboardPage = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Target className="h-5 w-5" />
-                Acciones Rápidas
+                Quick Actions
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -205,21 +264,21 @@ const DashboardPage = () => {
                 <Link to={`/notebooks/${selectedNotebook.id}/notes`}>
                   <Button variant="outline" className="w-full justify-start h-12 text-base mb-4">
                     <Plus className="mr-3 h-5 w-5" />
-                    Crear Nueva Nota
+                    Create New Note
                   </Button>
                 </Link>
                 
                 <Link to="/notebooks">
                   <Button variant="outline" className="w-full justify-start h-12 text-base mb-4">
                     <BookOpen className="mr-3 h-5 w-5" />
-                    Ver Todos los Notebooks
+                    View All Notebooks
                   </Button>
                 </Link>
                 
                 <Link to="/upload">
                   <Button variant="outline" className="w-full justify-start h-12 text-base">
                     <FileText className="mr-3 h-5 w-5" />
-                    Subir Apuntes
+                    Upload Notes
                   </Button>
                 </Link>
               </div>
@@ -233,10 +292,10 @@ const DashboardPage = () => {
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle>Todas las Notas</CardTitle>
+              <CardTitle>All Notes</CardTitle>
               <Link to={`/notebooks/${selectedNotebook?.id}/notes`}>
                 <Button variant="outline" size="sm">
-                  Ver todas
+                  View all
                 </Button>
               </Link>
             </div>
@@ -252,7 +311,7 @@ const DashboardPage = () => {
                         <div className="min-w-0">
                           <p className="font-medium truncate">{note.title}</p>
                           <p className="text-xs text-muted-foreground">
-                            {new Date(note.updated_at).toLocaleDateString('es-ES')}
+                            {new Date(note.updated_at).toLocaleDateString('en-US')}
                           </p>
                         </div>
                       </div>

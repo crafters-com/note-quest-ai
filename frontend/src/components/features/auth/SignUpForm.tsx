@@ -48,7 +48,7 @@ const SignUpForm = () => {
 
     // Validación de contraseñas
     if (formData.password !== formData.confirmPassword) {
-      setError("Las contraseñas no coinciden.");
+      setError("Passwords do not match.");
       return;
     }
 
@@ -72,9 +72,9 @@ const SignUpForm = () => {
         // Extrae el primer mensaje de error de la respuesta del backend
         const firstErrorKey = Object.keys(errorData)[0];
         const errorMessage = errorData[firstErrorKey][0];
-        setError(errorMessage || "Ocurrió un error. Por favor, revisa los datos.");
+        setError(errorMessage || "An error occurred. Please check the data.");
       } else {
-        setError("No se pudo conectar con el servidor. Inténtalo más tarde.");
+        setError("Could not connect to the server. Try again later.");
       }
       console.error("Fallo el registro:", err);
     } finally {
@@ -85,29 +85,29 @@ const SignUpForm = () => {
   return (
     <Card className="w-full max-w-md border-0 bg-white/50 shadow-xl backdrop-blur-sm">
       <CardHeader className="space-y-2 text-center">
-        <CardTitle className="text-2xl font-bold">Crear Cuenta</CardTitle>
+        <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
         <CardDescription className="text-muted-foreground">
-          Únete a NoteQuest-AI y comienza tu viaje
+          Join NoteQuest-AI and start your journey
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="first_name">Nombre</Label>
+              <Label htmlFor="first_name">First Name</Label>
               <Input
                 id="first_name"
-                placeholder="Tu nombre"
+                placeholder="Your first name"
                 value={formData.first_name}
                 onChange={handleInputChange}
                 required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="last_name">Apellidos</Label>
+              <Label htmlFor="last_name">Last Name</Label>
               <Input
                 id="last_name"
-                placeholder="Tus apellidos"
+                placeholder="Your last name"
                 value={formData.last_name}
                 onChange={handleInputChange}
                 required
@@ -116,13 +116,13 @@ const SignUpForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="username">Nombre de usuario</Label>
+            <Label htmlFor="username">Username</Label>
             <div className="relative">
               <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="username"
                 type="text"
-                placeholder="Tu nombre de usuario"
+                placeholder="Your username"
                 value={formData.username}
                 onChange={handleInputChange}
                 className="h-11 border-border bg-input pl-10" required
@@ -131,13 +131,13 @@ const SignUpForm = () => {
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="email">Correo electrónico</Label>
+            <Label htmlFor="email">Email</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="email"
                 type="email"
-                placeholder="tu@ejemplo.com"
+                placeholder="you@example.com"
                 value={formData.email}
                 onChange={handleInputChange}
                 className="h-11 border-border bg-input pl-10" required
@@ -145,7 +145,7 @@ const SignUpForm = () => {
             </div>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="birth_date">Fecha de Nacimiento (Opcional)</Label>
+            <Label htmlFor="birth_date">Birth Date (Optional)</Label>
             <Input
               id="birth_date"
               type="date"
@@ -155,13 +155,13 @@ const SignUpForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="password">Contraseña</Label>
+            <Label htmlFor="password">Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Mínimo 8 caracteres"
+                placeholder="Minimum 8 characters"
                 value={formData.password}
                 onChange={handleInputChange}
                 className="h-11 border-border bg-input pl-10 pr-10" required minLength={8}
@@ -173,13 +173,13 @@ const SignUpForm = () => {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+            <Label htmlFor="confirmPassword">Confirm Password</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
-                placeholder="Confirma tu contraseña"
+                placeholder="Confirm your password"
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 className="h-11 border-border bg-input pl-10 pr-10" required
@@ -193,7 +193,7 @@ const SignUpForm = () => {
           {error && <p className="text-sm text-destructive">{error}</p>}
           
           <Button type="submit" className="w-full h-11" disabled={loading}>
-            {loading ? "Creando cuenta..." : "Crear Cuenta"}
+            {loading ? "Creating account..." : "Create Account"}
           </Button>
         </form>
 
@@ -202,16 +202,16 @@ const SignUpForm = () => {
             <Separator />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-card px-2 text-muted-foreground rounded-md">O regístrate con</span>
+            <span className="bg-card px-2 text-muted-foreground rounded-md">Or sign up with</span>
           </div>
         </div>
 
         {/* ... Botón de Google ... */}
         
         <div className="text-center text-sm text-muted-foreground">
-          ¿Ya tienes una cuenta?{" "}
+          Already have an account?{" "}
           <Link to="/login" className="font-medium text-primary hover:text-primary/80">
-            Iniciar sesión
+            Sign in
           </Link>
         </div>
       </CardContent>

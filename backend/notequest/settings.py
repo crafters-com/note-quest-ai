@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'notebooks', 
     'notes',
     'files',
+    'friendships',
 ]
 
 MIDDLEWARE = [

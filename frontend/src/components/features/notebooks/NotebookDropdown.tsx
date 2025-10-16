@@ -51,7 +51,7 @@ export const NotebookDropdown: React.FC = () => {
           onClick={() => setIsModalOpen(true)}
         >
           <Plus className="h-4 w-4" />
-          Crear primer notebook
+          Create first notebook
         </Button>
         <CreateNotebookModal
           open={isModalOpen}
@@ -74,7 +74,7 @@ export const NotebookDropdown: React.FC = () => {
               <Folder className="h-5 w-5 text-primary flex-shrink-0" />
               <div className="flex flex-col items-start min-w-0 flex-1 space-y-1">
                 <span className="font-semibold text-foreground truncate w-full text-left">
-                  {selectedNotebook?.name || 'Seleccionar notebook'}
+                  {selectedNotebook?.name || 'Select notebook'}
                 </span>
                 {selectedNotebook && (
                   <span className="text-xs text-muted-foreground truncate w-full text-left">
@@ -111,7 +111,7 @@ export const NotebookDropdown: React.FC = () => {
             className="flex items-center gap-3 py-2 text-primary"
           >
             <Plus className="h-4 w-4" />
-            <span>Crear nuevo notebook</span>
+            <span>Create new notebook</span>
           </DropdownMenuItem>
           
           <DropdownMenuItem
@@ -119,7 +119,7 @@ export const NotebookDropdown: React.FC = () => {
             className="flex items-center gap-3 py-2"
           >
             <BookOpen className="h-4 w-4" />
-            <span>Ver todos los notebooks</span>
+            <span>View all notebooks</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

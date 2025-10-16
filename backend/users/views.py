@@ -1,8 +1,10 @@
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, filters
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate, get_user_model
+from django.db.models import Q
 
 from .serializers import UserSignupSerializer
 from .serializers import UserSerializer
@@ -50,6 +52,41 @@ class LoginView(APIView):
             "token": token.key,
             "user": serializer.data
         })
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
+def search_users(request):
+    from friendships.models import Friendship  # Importación local para evitar dependencias circulares
+    
+    query = request.GET.get('q', '').strip()
+    if not query:
+        return Response([])
+    
+    # Obtener los IDs de usuarios que ya son amigos o tienen solicitudes pendientes
+    friendship_user_ids = Friendship.objects.filter(
+        (Q(sender=request.user) | Q(receiver=request.user)),
+        Q(status=Friendship.ACCEPTED) | Q(status=Friendship.PENDING)
+    ).values_list('sender_id', 'receiver_id').distinct()
+    
+    # Convertir la lista de tuplas en una lista plana de IDs únicos
+    excluded_ids = set()
+    for sender_id, receiver_id in friendship_user_ids:
+        excluded_ids.add(sender_id)
+        excluded_ids.add(receiver_id)
+    
+    # Asegurarse de excluir al usuario actual
+    excluded_ids.add(request.user.id)
+    
+    # Filtrar usuarios excluyendo amigos y solicitudes pendientes
+    users = User.objects.filter(
+        Q(username__icontains=query) | 
+        Q(email__icontains=query)
+    ).exclude(
+        id__in=excluded_ids
+    )[:5]  # Limitamos a 5 resultados
+    
+    serializer = UserSerializer(users, many=True)
+    return Response(serializer.data)
 
 
 # Logout

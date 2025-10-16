@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useData } from "@/hooks/useData";
 import { notebookService, type Notebook } from "@/services/notebookService";
+import { useToast } from "@/hooks/useToast";
 
 // --- Tus componentes de UI ---
 import { Button } from "@/components/ui/Button";
@@ -9,35 +10,55 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { CreateNotebookModal } from "@/components/features/notebooks/CreateNotebookModal";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/Dropdown";
 import { Input } from "@/components/ui/Input";
-import { Filter, Grid3X3, List, Plus, Search, Folder, Tag } from "lucide-react";
+import { Filter, Grid3X3, List, Plus, Search, Folder, Tag, Trash2 } from "lucide-react";
 
 // --- Componentes para mostrar cada Notebook ---
-const NotebookCard = ({ notebook }: { notebook: Notebook }) => (
-  <Link to={`/notebooks/${notebook.id}/notes`}>
-    <Card className="p-4 hover:bg-accent transition-colors">
-      <div className="flex items-center gap-3">
-        <Folder className="h-6 w-6 text-primary" />
-        <div>
-          <h3 className="font-bold">{notebook.name}</h3>
-          <p className="text-sm text-muted-foreground">{notebook.subject}</p>
-        </div>
+const NotebookCard = ({ notebook, onDelete }: { notebook: Notebook; onDelete: (id: number) => void }) => (
+  <Card className="p-4 hover:bg-accent transition-colors group relative">
+    <Link to={`/notebooks/${notebook.id}/notes`} className="flex items-center gap-3">
+      <Folder className="h-6 w-6 text-primary" />
+      <div className="flex-1">
+        <h3 className="font-bold">{notebook.name}</h3>
+        <p className="text-sm text-muted-foreground">{notebook.subject}</p>
       </div>
-    </Card>
-  </Link>
+    </Link>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onDelete(notebook.id);
+      }}
+      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 hover:bg-red-50 border-transparent p-2 h-auto"
+    >
+      <Trash2 className="h-4 w-4" />
+    </Button>
+  </Card>
 );
 
-const NotebookListItem = ({ notebook }: { notebook: Notebook }) => (
-  <Link to={`/notebooks/${notebook.id}/notes`}>
-    <Card className="p-3 hover:bg-accent transition-colors">
-      <div className="flex items-center gap-3">
-        <Folder className="h-5 w-5 text-primary" />
-        <div>
-          <h3 className="font-semibold">{notebook.name}</h3>
-          <p className="text-sm text-muted-foreground">{notebook.subject}</p>
-        </div>
+const NotebookListItem = ({ notebook, onDelete }: { notebook: Notebook; onDelete: (id: number) => void }) => (
+  <Card className="p-3 hover:bg-accent transition-colors group relative">
+    <Link to={`/notebooks/${notebook.id}/notes`} className="flex items-center gap-3">
+      <Folder className="h-5 w-5 text-primary" />
+      <div className="flex-1">
+        <h3 className="font-semibold">{notebook.name}</h3>
+        <p className="text-sm text-muted-foreground">{notebook.subject}</p>
       </div>
-    </Card>
-  </Link>
+    </Link>
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onDelete(notebook.id);
+      }}
+      className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity text-red-600 hover:text-red-700 hover:bg-red-50 border-transparent p-2 h-auto"
+    >
+      <Trash2 className="h-4 w-4" />
+    </Button>
+  </Card>
 );
 
 // --- El componente de página ---
@@ -45,6 +66,7 @@ const NotebooksPage = () => {
   const { data: notebooks, loading, error, setData: setNotebooks } = useData<Notebook[]>(
     () => notebookService.getNotebooks()
   );
+  const { toast } = useToast();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedSubject, setSelectedSubject] = useState("Todos");
@@ -54,6 +76,35 @@ const NotebooksPage = () => {
   const handleNotebookCreated = (newNotebook: Notebook) => {
     setNotebooks((prevNotebooks) => (prevNotebooks ? [newNotebook, ...prevNotebooks] : [newNotebook]));
     setIsModalOpen(false);
+  };
+
+  const handleDeleteNotebook = async (notebookId: number) => {
+    const notebook = notebooks?.find(n => n.id === notebookId);
+    if (!notebook) return;
+
+    const confirmed = window.confirm(
+      `Are you sure you want to delete the notebook "${notebook.name}"?\n\n` +
+      `All notes within this notebook will also be deleted.\n\n` +
+      `This action cannot be undone.`
+    );
+
+    if (!confirmed) return;
+
+    try {
+      await notebookService.deleteNotebook(notebookId);
+      setNotebooks((prevNotebooks) => prevNotebooks?.filter(n => n.id !== notebookId) || null);
+      toast({
+        title: "Notebook deleted",
+        description: "The notebook and all its notes have been deleted",
+        variant: "success",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Could not delete the notebook",
+        variant: "destructive",
+      });
+    }
   };
 
   const subjects = ["Todos", ...new Set(notebooks?.map((n) => n.subject) ?? [])];
@@ -66,7 +117,7 @@ const NotebooksPage = () => {
       return matchesSearch && matchesSubject;
     }) ?? [];
 
-  if (loading) return <div>Cargando notebooks...</div>;
+  if (loading) return <div>Loading notebooks...</div>;
   if (error) return <div className="text-destructive">{error}</div>;
 
   return (
@@ -74,14 +125,14 @@ const NotebooksPage = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-foreground">Mis Notebooks</h1>
+          <h1 className="text-3xl font-bold text-foreground">My Notebooks</h1>
           <p className="text-muted-foreground">
-            Organiza tus apuntes en carpetas temáticas
+            Organize your notes into thematic folders
           </p>
         </div>
         <Button className="w-fit" onClick={() => setIsModalOpen(true)}>
           <Plus className="mr-2 h-4 w-4" />
-          Crear Notebook
+          Create Notebook
         </Button>
       </div>
 
@@ -90,7 +141,7 @@ const NotebooksPage = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
-            placeholder="Buscar por nombre o materia..."
+            placeholder="Search by name or subject..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -130,7 +181,7 @@ const NotebooksPage = () => {
             <Folder className="h-6 w-6 text-primary" />
             <div>
               <p className="text-2xl font-bold">{notebooks?.length ?? 0}</p>
-              <p className="text-sm text-muted-foreground">Total de Notebooks</p>
+              <p className="text-sm text-muted-foreground">Total Notebooks</p>
             </div>
           </CardContent>
         </Card>
@@ -139,7 +190,7 @@ const NotebooksPage = () => {
             <Tag className="h-6 w-6 text-secondary" />
             <div>
               <p className="text-2xl font-bold">{subjects.length - 1}</p>
-              <p className="text-sm text-muted-foreground">Materias Únicas</p>
+              <p className="text-sm text-muted-foreground">Unique Subjects</p>
             </div>
           </CardContent>
         </Card>
@@ -151,15 +202,15 @@ const NotebooksPage = () => {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12 text-center">
               <Folder className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No se encontraron notebooks</h3>
+              <h3 className="text-lg font-semibold mb-2">No notebooks found</h3>
               <p className="text-muted-foreground mb-4">
                 {searchTerm || selectedSubject !== "Todos"
-                  ? "Intenta ajustar tus filtros de búsqueda."
-                  : "Comienza creando tu primer notebook."}
+                  ? "Try adjusting your search filters."
+                  : "Start by creating your first notebook."}
               </p>
               <Button onClick={() => setIsModalOpen(true)}>
                 <Plus className="mr-2 h-4 w-4" />
-                Crear Notebook
+                Create Notebook
               </Button>
             </CardContent>
           </Card>
@@ -167,9 +218,9 @@ const NotebooksPage = () => {
           <div className={viewMode === "grid" ? "grid gap-4 md:grid-cols-2 lg:grid-cols-3" : "space-y-3"}>
             {filteredNotebooks.map((notebook) =>
               viewMode === "grid" ? (
-                <NotebookCard key={notebook.id} notebook={notebook} />
+                <NotebookCard key={notebook.id} notebook={notebook} onDelete={handleDeleteNotebook} />
               ) : (
-                <NotebookListItem key={notebook.id} notebook={notebook} />
+                <NotebookListItem key={notebook.id} notebook={notebook} onDelete={handleDeleteNotebook} />
               )
             )}
           </div>

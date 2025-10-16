@@ -35,7 +35,7 @@ export const CreateNotebookModal = ({ open, onOpenChange, onSuccess }: CreateNot
       const newNotebook = await notebookService.createNotebook(formData);
       onSuccess(newNotebook); // Llama a la función de éxito del padre
     } catch (err) {
-      setError("No se pudo crear el notebook. Inténtalo de nuevo.");
+      setError("Could not create the notebook. Please try again.");
       console.error(err);
     } finally {
       setLoading(false);
@@ -46,30 +46,30 @@ export const CreateNotebookModal = ({ open, onOpenChange, onSuccess }: CreateNot
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Crear Nuevo Notebook</DialogTitle>
+          <DialogTitle>Create New Notebook</DialogTitle>
           <DialogDescription>
-            Dale un nombre y una materia a tu nueva carpeta de apuntes.
+            Give a name and subject to your new notes folder.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} id="create-notebook-form" className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nombre del Notebook</Label>
+            <Label htmlFor="name">Notebook Name</Label>
             <Input id="name" value={formData.name} onChange={handleInputChange} required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="subject">Materia</Label>
+            <Label htmlFor="subject">Subject</Label>
             <Input id="subject" value={formData.subject} onChange={handleInputChange} required />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="description">Descripción (Opcional)</Label>
+            <Label htmlFor="description">Description (Optional)</Label>
             <Input id="description" value={formData.description} onChange={handleInputChange} />
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
         </form>
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
           <Button type="submit" form="create-notebook-form" disabled={loading}>
-            {loading ? "Creando..." : "Crear Notebook"}
+            {loading ? "Creating..." : "Create Notebook"}
           </Button>
         </DialogFooter>
       </DialogContent>

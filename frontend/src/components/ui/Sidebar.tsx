@@ -11,8 +11,6 @@ import {
 import { cn } from "@/utils/cn";
 import {
   BookOpen,
-  Brain,
-  FileText,
   HelpCircle,
   Home,
   LogOut,
@@ -23,6 +21,7 @@ import {
 import type React from "react";
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+import LogoSvg from "@/assets/icons/logo.svg";
 
 const navigation = [
   {
@@ -31,12 +30,17 @@ const navigation = [
     icon: Home,
   },
   {
-    name: "Mis notebooks",
+    name: "Friends",
+    href: "/friends",
+    icon: User,
+  },
+  {
+    name: "My Notebooks",
     href: "/notebooks",
     icon: BookOpen,
   },
   {
-    name: "Subir Apuntes",
+    name: "Upload Notes",
     href: "/upload",
     icon: Upload,
   },
@@ -44,11 +48,6 @@ const navigation = [
     name: "Quizzes",
     href: "/quizzes",
     icon: HelpCircle,
-  },
-  {
-    name: "Perfil",
-    href: "/profile",
-    icon: User,
   },
 ];
 
@@ -64,15 +63,14 @@ const SidebarContent: React.FC = () => {
       {/* Logo */}
       <div className="flex h-16 items-center gap-3 border-b px-6">
         <div className="relative">
-          <FileText className="h-8 w-8 text-primary" />
-          <Brain className="h-5 w-5 text-secondary absolute -top-1 -right-1" />
+          <img src={LogoSvg} alt="Logo" className="h-10 w-10" />
         </div>
         <div className="flex flex-col">
           <span className="text-lg font-bold text-foreground">
             NoteQuest-AI
           </span>
           <span className="text-xs text-muted-foreground">
-            Gestión inteligente
+            Smart Management
           </span>
         </div>
       </div>
@@ -104,7 +102,7 @@ const SidebarContent: React.FC = () => {
         <div className="py-2">
           <div className="px-3 py-1">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-              Notebook Activo
+              Active Notebook
             </span>
           </div>
           <NotebookDropdown />
@@ -119,7 +117,7 @@ const SidebarContent: React.FC = () => {
             onClick={logout}
           >
             <LogOut className="h-4 w-4" />
-            Cerrar sesión
+            Sign Out
           </Button>
         </div>
       </div>
@@ -142,7 +140,7 @@ export const MobileSidebar: React.FC = () => {
       <SheetTrigger asChild>
         <Button variant="outline" size="sm" className="xl:hidden">
           <Menu className="h-5 w-5" />
-          <span className="sr-only">Abrir menú</span>
+          <span className="sr-only">Open menu</span>
         </Button>
       </SheetTrigger>
       <SheetContent side="left" className="p-0 w-64 gap-0">

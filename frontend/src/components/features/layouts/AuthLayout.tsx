@@ -1,14 +1,11 @@
-import { Brain, FileText } from "lucide-react";
-import { Outlet } from "react-router-dom"; // Es mejor usar 'react-router-dom' para web
+import { Outlet } from "react-router-dom";
+import LogoSvg from "@/assets/icons/logo.svg";
 
 // --- Sub-componentes de la sección de Branding ---
 
 const BrandLogo = () => (
   <div className="flex items-center gap-3">
-    <div className="relative">
-      <FileText className="h-8 w-8 text-primary" />
-      <Brain className="absolute -right-1 -top-1 h-5 w-5 text-secondary" />
-    </div>
+    <img src={LogoSvg} alt="NoteQuest-AI Logo" className="h-12 w-12" />
     <h1 className="text-3xl font-bold text-foreground">NoteQuest-AI</h1>
   </div>
 );
@@ -16,11 +13,11 @@ const BrandLogo = () => (
 const WelcomeMessage = () => (
   <div className="space-y-4">
     <h2 className="text-balance text-4xl font-bold leading-tight lg:text-5xl">
-      Bienvenido a <span className="text-primary">NoteQuest-AI</span>
+      Welcome to <span className="text-primary">NoteQuest-AI</span>
     </h2>
     <p className="text-pretty max-w-md text-lg leading-relaxed text-muted-foreground">
-      Transforma tus ideas en notas inteligentes con el poder de la inteligencia
-      artificial. Organiza, busca y conecta tu conocimiento como nunca antes.
+      Transform your ideas into intelligent notes with the power of artificial
+      intelligence. Organize, search, and connect your knowledge like never before.
     </p>
   </div>
 );
