@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { generateSummary, generateQuiz } from "@/apiAITools";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { PlusCircle } from "lucide-react";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { QuizCard } from "@/components/features/ai/QuizCard";
+import { Sparkles, FileText, Brain, AlertCircle, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/Badge";
 
 // Importar los componentes del select correctamente
 import {
@@ -97,95 +99,157 @@ export default function AIToolsPage() {
 
   // 🔹 Render principal
   return (
-    <div className="p-6 max-w-3xl mx-auto space-y-6">
-      <h1 className="text-2xl font-semibold text-primary">AI Tools</h1>
-
-      {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
-
-      {/* Selección de nota + botones */}
-      <Card className="p-4 bg-muted/30 border border-border">
-        <CardContent className="flex flex-col sm:flex-row items-center gap-6">
-          {loadingNotes ? (
-            <p className="text-sm text-muted-foreground">Loading notes...</p>
-          ) : notes.length > 0 ? (
-            <Select
-              value={selectedNoteId}
-              onValueChange={(value) => setSelectedNoteId(value)}
-            >
-              <SelectTrigger className="w-full sm:w-64">
-                <SelectValue placeholder="Select a note" />
-              </SelectTrigger>
-              <SelectContent>
-                {notes.map((note) => (
-                  <SelectItem key={note.id} value={note.id.toString()}>
-                    {note.title || `Note ${note.id}`}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              No notes available.
-            </p>
-          )}
-
-          <div className="flex gap-2 flex-wrap">
-            <Button
-              onClick={handleGenerateSummary}
-              disabled={loadingSummary || !selectedNoteId}
-              className="flex items-center gap-2"
-            >
-              <PlusCircle className="w-4 h-4" />
-              {loadingSummary ? "Generating..." : "Generate Summary"}
-            </Button>
-
-            <Button
-              onClick={handleGenerateQuiz}
-              disabled={loadingQuiz || !selectedNoteId}
-              className="flex items-center gap-2"
-            >
-              <PlusCircle className="w-4 h-4" />
-              {loadingQuiz ? "Generating..." : "Generate Quiz"}
-            </Button>
+    <div className="p-6 max-w-5xl mx-auto space-y-8">
+      {/* Header */}
+      <div className="space-y-2">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-primary" />
           </div>
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">AI Tools</h1>
+            <p className="text-muted-foreground text-sm">
+              Generate summaries and quizzes from your notes using AI
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {errorMessage && (
+        <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950">
+          <CardContent className="p-4">
+            <div className="flex items-center gap-2 text-red-700 dark:text-red-400">
+              <AlertCircle className="w-5 h-5 shrink-0" />
+              <p className="text-sm font-medium">{errorMessage}</p>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Note Selection Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Select a Note</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {loadingNotes ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 animate-spin text-primary" />
+              <span className="ml-2 text-sm text-muted-foreground">
+                Loading notes...
+              </span>
+            </div>
+          ) : notes.length > 0 ? (
+            <div className="space-y-4">
+              <Select
+                value={selectedNoteId}
+                onValueChange={(value) => setSelectedNoteId(value)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Choose a note to analyze" />
+                </SelectTrigger>
+                <SelectContent>
+                  {notes.map((note) => (
+                    <SelectItem key={note.id} value={note.id.toString()}>
+                      <div className="flex items-center gap-2">
+                        <FileText className="w-4 h-4 text-muted-foreground" />
+                        <span>{note.title || `Note ${note.id}`}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <Button
+                  onClick={handleGenerateSummary}
+                  disabled={loadingSummary || !selectedNoteId}
+                  className="w-full gap-2"
+                  size="lg"
+                >
+                  {loadingSummary ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <FileText className="w-4 h-4" />
+                      Generate Summary
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  onClick={handleGenerateQuiz}
+                  disabled={loadingQuiz || !selectedNoteId}
+                  className="w-full gap-2"
+                  variant="outline"
+                  size="lg"
+                >
+                  {loadingQuiz ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <Brain className="w-4 h-4" />
+                      Generate Quiz
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8">
+              <FileText className="w-12 h-12 text-muted-foreground mx-auto mb-3 opacity-50" />
+              <p className="text-sm text-muted-foreground">
+                No notes available. Create a note first!
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
-      {/* Resumen */}
+      {/* Summary Section */}
       {summary && (
-        <div>
-          <h2 className="text-xl font-medium text-foreground mb-2">Summary</h2>
-          <p className="text-muted-foreground text-sm whitespace-pre-line">
-            {summary}
-          </p>
-        </div>
+        <Card>
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="w-5 h-5" />
+                Summary
+              </CardTitle>
+              <Badge variant="secondary">AI Generated</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="prose prose-sm dark:prose-invert max-w-none">
+              <p className="text-foreground leading-relaxed whitespace-pre-line">
+                {summary}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Quiz */}
-      {quiz && Array.isArray(quiz) && (
-        <div className="space-y-4">
-          <h2 className="text-xl font-medium text-foreground">Quiz</h2>
-          {quiz.map((q, i) => (
-            <Card key={i} className="p-4">
-              <p className="font-semibold">
-                {i + 1}. {q.question}
-              </p>
-              {q.type === "multiple_choice" && (
-                <ul className="list-disc pl-5 mt-2">
-                  {q.options?.map((opt: string, j: number) => (
-                    <li key={j} className="text-sm text-muted-foreground">
-                      {opt}
-                    </li>
-                  ))}
-                </ul>
-              )}
-              {q.type === "open" && (
-                <p className="text-sm italic text-muted-foreground mt-2">
-                  (Pregunta abierta — respuesta esperada: {q.answer})
-                </p>
-              )}
-            </Card>
-          ))}
+      {/* Quiz Section */}
+      {quiz && Array.isArray(quiz) && quiz.length > 0 && (
+        <div className="space-y-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Brain className="w-5 h-5 text-primary" />
+              <h2 className="text-2xl font-semibold text-foreground">Quiz</h2>
+            </div>
+            <Badge variant="secondary">{quiz.length} Questions</Badge>
+          </div>
+
+          <div className="space-y-4">
+            {quiz.map((q, i) => (
+              <QuizCard key={i} question={q} index={i} />
+            ))}
+          </div>
         </div>
       )}
     </div>
