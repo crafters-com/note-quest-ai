@@ -8,6 +8,10 @@ class Note(models.Model):
     # Campos básicos
     title = models.CharField(max_length=200)
     content = models.TextField(blank=True)
+
+    # Para procesos de IA
+    summary = models.TextField(blank=True, null=True)
+    quiz_data = models.JSONField(blank=True, null=True)
     
     # Fechas automáticas  
     created_at = models.DateTimeField(auto_now_add=True)
