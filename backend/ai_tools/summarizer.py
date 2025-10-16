@@ -1,15 +1,26 @@
-from transformers import pipeline
+from openai import OpenAI
+from django.conf import settings
 
-# Modelo liviano y eficiente (ideal para demo en local)
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
 def summarize_text(text: str) -> str:
-    """Genera un resumen corto del contenido de una nota."""
-    if not text or len(text.strip()) < 30:
-        return "No hay suficiente contenido para generar un resumen."
-    
-    try:
-        result = summarizer(text, max_length=200, min_length=60, do_sample=False)
-        return result[0]["summary_text"].strip()
-    except Exception as e:
-        return f"Error generando resumen: {str(e)}"
+    """
+    Usa GPT-4o-mini para generar un resumen coherente y estructurado.
+    """
+    if not text.strip():
+        return "No hay contenido para resumir."
+
+    prompt = f"""
+    Resume el siguiente texto en un formato claro y conciso (máximo 5 oraciones).
+    Texto:
+    {text}
+    """
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "system", "content": "Eres un experto en redacción y síntesis de información."},
+                  {"role": "user", "content": prompt}],
+        temperature=0.5,
+    )
+
+    return response.choices[0].message.content.strip()
