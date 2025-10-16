@@ -17,6 +17,7 @@ import {
   Menu,
   Upload,
   User,
+  Bot
 } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
@@ -45,9 +46,14 @@ const navigation = [
     icon: Upload,
   },
   {
-    name: "Quizzes",
+    name: "AI-Tools",
     href: "/quizzes",
-    icon: HelpCircle,
+    icon: Bot,
+  },
+  {
+    name: "Profile",
+    href: "/profile",
+    icon: User,
   },
 ];
 

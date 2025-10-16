@@ -14,6 +14,11 @@ class CustomUser(AbstractUser):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     birth_date = models.DateField(null=True, blank=True)
+    # Profile fields used by UserProfilePage
+    university = models.CharField(max_length=255, null=True, blank=True)
+    location = models.CharField(max_length=255, null=True, blank=True)
+    career = models.CharField(max_length=255, null=True, blank=True)
+    academic_year = models.CharField(max_length=50, null=True, blank=True)
     rol = models.CharField(max_length=10, choices=ROLE_CHOICES, default='student')
     
     # Fechas automáticas

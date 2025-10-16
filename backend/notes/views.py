@@ -6,6 +6,10 @@ from rest_framework.response import Response
 from django.shortcuts import get_object_or_404
 from django.contrib.auth import get_user_model
 from django.db import models
+
+from ai_tools.summarizer import summarize_text
+from ai_tools.quiz_generator import generate_quiz
+
 from .models import Note
 from .serializers import NoteSerializer
 from notebooks.models import Notebook
@@ -31,85 +35,79 @@ class NoteDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         # Un usuario solo puede acceder/modificar las notas de sus propios notebooks
         return Note.objects.filter(notebook__user=self.request.user)
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def generate_summary(request, note_id):
+    """Genera y guarda el resumen de una nota."""
+    try:
+        note = Note.objects.get(id=note_id, notebook__user=request.user)
+        summary = summarize_text(note.content)
+        note.summary = summary
+        note.save(update_fields=["summary"])
+        return Response({"summary": summary})
+    except Note.DoesNotExist:
+        return Response({"error": "Nota no encontrada."}, status=404)
 
-@api_view(['POST'])
+
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def generate_quiz_view(request, note_id):
+    """Genera y guarda un quiz sencillo basado en una nota."""
+    try:
+        note = Note.objects.get(id=note_id, notebook__user=request.user)
+        quiz = generate_quiz(note.content)
+        note.quiz_data = quiz
+        note.save(update_fields=["quiz_data"])
+        return Response({"quiz": quiz})
+    except Note.DoesNotExist:
+        return Response({"error": "Nota no encontrada."}, status=404)
+
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def share_note(request, note_id):
-    """
-    Comparte una copia de una nota con un amigo.
-    El amigo puede elegir en qué notebook guardarla.
-    """
-    # Obtener la nota original
+    """Comparte una nota con un amigo creando una copia en su notebook."""
     try:
-        original_note = Note.objects.get(id=note_id, notebook__user=request.user)
+        # Verificar que la nota existe y pertenece al usuario actual
+        note = Note.objects.get(id=note_id, notebook__user=request.user)
+        
+        # Obtener el ID del amigo del request
+        friend_id = request.data.get('friend_id')
+        if not friend_id:
+            return Response({"error": "friend_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verificar que son amigos
+        friend = get_object_or_404(User, id=friend_id)
+        friendship_exists = Friendship.objects.filter(
+            models.Q(sender=request.user, receiver=friend, status='accepted') |
+            models.Q(sender=friend, receiver=request.user, status='accepted')
+        ).exists()
+        
+        if not friendship_exists:
+            return Response({"error": "You can only share notes with friends"}, status=status.HTTP_403_FORBIDDEN)
+        
+        # Buscar o crear el notebook "Shared Notes" del amigo
+        shared_notebook, created = Notebook.objects.get_or_create(
+            user=friend,
+            name="Shared Notes",
+            defaults={'subject': 'Shared'}
+        )
+        
+        # Crear una copia de la nota en el notebook del amigo
+        shared_note = Note.objects.create(
+            notebook=shared_notebook,
+            title=f"{note.title} (shared by {request.user.username})",
+            content=note.content,
+            summary=note.summary,
+            quiz_data=note.quiz_data
+        )
+        
+        return Response({
+            "message": "Note shared successfully",
+            "shared_note_id": shared_note.id
+        }, status=status.HTTP_201_CREATED)
+        
     except Note.DoesNotExist:
-        return Response(
-            {"error": "Nota no encontrada o no tienes permiso"},
-            status=status.HTTP_404_NOT_FOUND
-        )
-    
-    # Obtener datos de la solicitud
-    friend_id = request.data.get('friend_id')
-    notebook_id = request.data.get('notebook_id')  # Notebook del amigo donde se guardará
-    
-    if not friend_id:
-        return Response(
-            {"error": "Se requiere friend_id"},
-            status=status.HTTP_400_BAD_REQUEST
-        )
-    
-    # Verificar que son amigos
-    try:
-        friend = User.objects.get(id=friend_id)
-    except User.DoesNotExist:
-        return Response(
-            {"error": "Usuario no encontrado"},
-            status=status.HTTP_404_NOT_FOUND
-        )
-    
-    # Verificar amistad
-    friendship_exists = Friendship.objects.filter(
-        status=Friendship.ACCEPTED
-    ).filter(
-        models.Q(sender=request.user, receiver=friend) |
-        models.Q(sender=friend, receiver=request.user)
-    ).exists()
-    
-    if not friendship_exists:
-        return Response(
-            {"error": "Solo puedes compartir notas con tus amigos"},
-            status=status.HTTP_403_FORBIDDEN
-        )
-    
-    # Si se especifica un notebook, verificar que pertenezca al amigo
-    if notebook_id:
-        try:
-            target_notebook = Notebook.objects.get(id=notebook_id, user=friend)
-        except Notebook.DoesNotExist:
-            return Response(
-                {"error": "Notebook no encontrado o no pertenece al usuario"},
-                status=status.HTTP_404_NOT_FOUND
-            )
-    else:
-        # Si no se especifica, usar el primer notebook del amigo o crear uno
-        target_notebook = Notebook.objects.filter(user=friend).first()
-        if not target_notebook:
-            target_notebook = Notebook.objects.create(
-                user=friend,
-                name="Notas Compartidas",
-                subject="General"
-            )
-    
-    # Crear copia de la nota para el amigo
-    shared_note = Note.objects.create(
-        notebook=target_notebook,
-        title=f"{original_note.title} (compartida por {request.user.username})",
-        content=original_note.content
-    )
-    
-    serializer = NoteSerializer(shared_note)
-    
-    return Response({
-        "message": "Nota compartida exitosamente",
-        "note": serializer.data
-    }, status=status.HTTP_201_CREATED)
+        return Response({"error": "Note not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
