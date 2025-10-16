@@ -9,6 +9,10 @@ export interface User {
   email: string;
   first_name: string;
   last_name: string;
+  university?: string | null;
+  location?: string | null;
+  career?: string | null;
+  academic_year?: string | null;
 }
 
 interface SignUpData {
@@ -63,8 +67,25 @@ const logout = (): void => {
   delete apiClient.defaults.headers.common["Authorization"];
 };
 
+interface UpdateUserData {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  username?: string;
+  university?: string | null;
+  location?: string | null;
+  career?: string | null;
+  academic_year?: string | null;
+}
+
+const updateUser = async (data: UpdateUserData) => {
+  const response = await apiClient.patch('/auth/user/', data);
+  return response.data;
+};
+
 export const authService = {
   signup,
   login,
   logout,
+  updateUser,
 };

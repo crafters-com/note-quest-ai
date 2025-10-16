@@ -103,3 +103,20 @@ class UserDetailView(APIView):
     def get(self, request, *args, **kwargs):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
+
+    def patch(self, request, *args, **kwargs):
+        """Allow partial updates to the authenticated user's basic fields.
+
+        Only the fields defined in `UserSerializer` will be accepted.
+        """
+        serializer = UserSerializer(request.user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
+
+    def put(self, request, *args, **kwargs):
+        """Allow full update (replace) of the authenticated user's basic fields."""
+        serializer = UserSerializer(request.user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data)
