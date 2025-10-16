@@ -37,15 +37,9 @@ function App() {
           <Route path="notebooks" element={<NotebooksPage />} />
           <Route path="notebooks/:notebookId/notes" element={<NoteListPage />} />
           <Route path="notes/:noteId" element={<NoteEditorPage />} />
-<<<<<<< HEAD
           <Route path="upload" element={<UploadPage />} />
           <Route path="quizzes" element={<AIToolsPage />} />
           <Route path="profile" element={<UserProfilePage />} />
-=======
-          <Route path="upload" element={<div>upload works</div>} />
-          <Route path="quizzes" element={<div>Quizzes works</div>} />
-          <Route path="profile" element={<UserProfilePage />} />
->>>>>>> 7f536ac (WIP: integrate local profile/notebooks changes)
           
         </Route>
       </Route>
