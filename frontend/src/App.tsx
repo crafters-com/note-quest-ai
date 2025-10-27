@@ -14,6 +14,7 @@ import AIToolsPage from "@/pages/AIToolsPage";
 import UploadPage from "./pages/UploadPage";
 import { NotebookProvider } from "@/context/NotebookContext";
 import { Toaster } from "@/components/ui/toaster";
+import UserProfilePage from "@/pages/UserProfilePage";
 
 function App() {
   return (
@@ -38,7 +39,7 @@ function App() {
           <Route path="notes/:noteId" element={<NoteEditorPage />} />
           <Route path="upload" element={<UploadPage />} />
           <Route path="quizzes" element={<AIToolsPage />} />
-          <Route path="profile" element={<div>Profile works</div>} />
+          <Route path="profile" element={<UserProfilePage />} />
           
         </Route>
       </Route>

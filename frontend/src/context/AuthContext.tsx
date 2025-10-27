@@ -14,6 +14,7 @@ interface AuthContextType {
   token: string | null;
   login: (username: string, password: string) => Promise<any>; // Parámetros tipados
   logout: () => void;
+  updateUser: (data: Partial<User>) => Promise<User>;
   loading: boolean;
 }
 
@@ -23,6 +24,7 @@ const AuthContext = createContext<AuthContextType>({
   token: null,
   login: async (username, password) => {},
   logout: () => {},
+  updateUser: async (data) => { return data as any; },
   loading: true,
 });
 
@@ -74,6 +76,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       throw error;
     }
   };
+  
+  const updateUser = async (data: Partial<User>) => {
+    const updated = await authService.updateUser(data as any);
+    setUser(updated);
+    return updated;
+  };
 
   const logout = () => {
     authService.logout();
@@ -88,6 +96,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     token,
     login,
     logout,
+    updateUser,
     loading,
   };
 

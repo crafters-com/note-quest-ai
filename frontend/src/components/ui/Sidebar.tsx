@@ -50,6 +50,11 @@ const navigation = [
     href: "/quizzes",
     icon: Bot,
   },
+  {
+    name: "Profile",
+    href: "/profile",
+    icon: User,
+  },
 ];
 
 const SidebarContent: React.FC = () => {

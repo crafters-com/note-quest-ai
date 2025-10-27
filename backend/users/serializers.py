@@ -7,14 +7,14 @@ User = get_user_model()
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name']
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'birth_date', 'university', 'location', 'career', 'academic_year']
 
 class UserSignupSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ["id", "username", "email", "first_name", "last_name", "password", "birth_date"]
+        fields = ["id", "username", "email", "first_name", "last_name", "password", "birth_date", "university", "location", "career", "academic_year"]
 
     def create(self, validated_data):
         user = User.objects.create_user(
@@ -23,7 +23,11 @@ class UserSignupSerializer(serializers.ModelSerializer):
             first_name=validated_data.get("first_name", ""),
             last_name=validated_data.get("last_name", ""),
             password=validated_data["password"],
-            birth_date=validated_data.get("birth_date", None)
+            birth_date=validated_data.get("birth_date", None),
+            university=validated_data.get("university", None),
+            location=validated_data.get("location", None),
+            career=validated_data.get("career", None),
+            academic_year=validated_data.get("academic_year", None)
         )
         Token.objects.create(user=user)  # genera token automáticamente
         return user
