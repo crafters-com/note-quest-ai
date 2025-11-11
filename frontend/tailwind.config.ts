@@ -10,14 +10,14 @@ const config: Config = {
         input: "oklch(0.9 0.01 250)",
         ring: "oklch(0.41 0.07 182)",
         background: "oklch(0.97 0.01 250)",
-        foreground: "oklch(0.18 0.04 250)",
+        foreground: "#1B1725",
         primary: {
           DEFAULT: "#095256", 
           foreground: "oklch(0.98 0.01 90)",
         },
         secondary: {
           DEFAULT: "oklch(0.87 0.15 95)",
-          foreground: "oklch(0.2 0.02 90)",
+          foreground: "#1B1725",
         },
         destructive: {
           DEFAULT: "oklch(0.55 0.2 25)",
@@ -25,19 +25,19 @@ const config: Config = {
         },
         muted: {
           DEFAULT: "oklch(0.95 0.01 250)",
-          foreground: "oklch(0.35 0.02 250)",
+          foreground: "#1B1725",
         },
         accent: {
           DEFAULT: "oklch(0.95 0.01 250)",
-          foreground: "oklch(0.2 0.02 250)",
+          foreground: "#1B1725",
         },
         popover: {
           DEFAULT: "oklch(1 0 0)",
-          foreground: "oklch(0.18 0.04 250)",
+          foreground: "#1B1725",
         },
         card: {
           DEFAULT: "oklch(1 0 0)",
-          foreground: "oklch(0.18 0.04 250)",
+          foreground: "#1B1725",
         },
       },
       borderRadius: {

@@ -5,9 +5,11 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate, get_user_model
 from django.db.models import Q
+from django.utils import timezone
+from datetime import timedelta
 
 from .serializers import UserSignupSerializer
-from .serializers import UserSerializer
+from .serializers import UserSerializer, StreakSerializer
 
 User = get_user_model()
 
@@ -120,3 +122,53 @@ class UserDetailView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+
+class StreakPingView(APIView):
+    """Authenticated endpoint to update and return the user's streak.
+
+    Logic:
+    - If first activity: set streak_count=1.
+    - If same day: do nothing.
+    - If yesterday: increment streak_count by 1.
+    - Else (gap > 1 day): reset streak_count to 1.
+    Always update best_streak if surpassed.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        today = timezone.localdate()
+        yesterday = today - timedelta(days=1)
+
+        changed = False
+        if user.last_active_date is None:
+            user.streak_count = 1
+            user.last_active_date = today
+            changed = True
+        elif user.last_active_date == today:
+            # No change if already active today
+            pass
+        elif user.last_active_date == yesterday:
+            user.streak_count = (user.streak_count or 0) + 1
+            user.last_active_date = today
+            changed = True
+        else:
+            # Missed one or more days
+            user.streak_count = 1
+            user.last_active_date = today
+            changed = True
+
+        # Update best streak if exceeded
+        if (user.best_streak or 0) < (user.streak_count or 0):
+            user.best_streak = user.streak_count
+            changed = True
+
+        if changed:
+            user.save(update_fields=[
+                'streak_count', 'best_streak', 'last_active_date', 'updated_at'
+            ])
+
+        data = StreakSerializer(user).data
+        data['today'] = str(today)
+        return Response(data)

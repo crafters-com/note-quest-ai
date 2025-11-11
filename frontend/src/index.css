@@ -10,13 +10,13 @@
 
     /* Base / fondo */
     --background: oklch(0.97 0.01 250);
-    --foreground: oklch(0.18 0.04 250);
+    --foreground: #1B1725;
 
     /* Card / Popover */
     --card: oklch(1 0 0);
-    --card-foreground: oklch(0.18 0.04 250);
+    --card-foreground: #1B1725;
     --popover: oklch(1 0 0);
-    --popover-foreground: oklch(0.18 0.04 250);
+    --popover-foreground: #1B1725;
 
     /* Primary */
     --primary: #095256;
@@ -24,13 +24,13 @@
 
     /* Secondary */
     --secondary: oklch(0.87 0.15 95);
-    --secondary-foreground: oklch(0.2 0.02 90);
+    --secondary-foreground: #1B1725;
 
     /* Muted / Accent */
     --muted: oklch(0.95 0.01 250);
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --muted-foreground: #1B1725;
+    --accent: oklch(0.95 0.01 250);
+    --accent-foreground: #1B1725;
 
     /* Destructive */
     --destructive: 0 84.2% 60.2%;

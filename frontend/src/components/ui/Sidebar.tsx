@@ -17,6 +17,7 @@ import {
   Menu,
   Upload,
   User,
+  Users,
   Bot
 } from "lucide-react";
 import type React from "react";
@@ -33,7 +34,7 @@ const navigation = [
   {
     name: "Friends",
     href: "/friends",
-    icon: User,
+    icon: Users,
   },
   {
     name: "My Notebooks",

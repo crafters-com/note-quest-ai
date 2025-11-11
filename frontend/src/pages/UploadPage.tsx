@@ -11,7 +11,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
+} from "@/components/ui/Select";
 
 const API_FILES_URL = "http://localhost:8000/api/files/";
 const API_NOTES_URL = "http://localhost:8000/api/notes/";

@@ -13,7 +13,7 @@ import FriendsPage from '@/pages/FriendsPage';
 import AIToolsPage from "@/pages/AIToolsPage";
 import UploadPage from "./pages/UploadPage";
 import { NotebookProvider } from "@/context/NotebookContext";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/Toaster";
 import UserProfilePage from "@/pages/UserProfilePage";
 
 function App() {

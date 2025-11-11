@@ -139,7 +139,7 @@ const LoginForm = () => {
         <Button
           type="button"
           variant="outline"
-          className="h-11 w-full border-border bg-transparent hover:bg-accent/10"
+          className="h-11 w-full border-border bg-transparent hover:bg-[#F9DA58] hover:text-[#1B1725] transition-colors"
           onClick={handleGoogleSignOn}
         >
           {/* ... SVG de Google ... */}

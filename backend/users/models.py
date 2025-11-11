@@ -10,10 +10,11 @@ class CustomUser(AbstractUser):
     ]
     
     # Campos básicos
-    email = models.EmailField(unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
+    email = models.EmailField(unique=True)
     birth_date = models.DateField(null=True, blank=True)
+    bio = models.TextField(null=True, blank=True)
     # Profile fields used by UserProfilePage
     university = models.CharField(max_length=255, null=True, blank=True)
     location = models.CharField(max_length=255, null=True, blank=True)
@@ -24,6 +25,11 @@ class CustomUser(AbstractUser):
     # Fechas automáticas
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    
+    # Streak tracking
+    streak_count = models.PositiveIntegerField(default=0)
+    best_streak = models.PositiveIntegerField(default=0)
+    last_active_date = models.DateField(null=True, blank=True)
     
     USERNAME_FIELD = "username"
     REQUIRED_FIELDS = ["email", "first_name", "last_name"]

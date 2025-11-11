@@ -6,13 +6,20 @@ import type { AxiosResponse } from "axios";
 export interface User {
   id: number;
   username: string;
-  email: string;
   first_name: string;
   last_name: string;
+  email: string;
+  birth_date?: string | null;
+  bio?: string | null;
+  created_at?: string | null;
+
   university?: string | null;
   location?: string | null;
   career?: string | null;
   academic_year?: string | null;
+  streak_count?: number;
+  best_streak?: number;
+  last_active_date?: string | null;
 }
 
 interface SignUpData {
@@ -88,4 +95,19 @@ export const authService = {
   login,
   logout,
   updateUser,
+};
+
+// --- Streak service ---
+export interface StreakResponse {
+  streak_count: number;
+  best_streak: number;
+  last_active_date: string | null;
+  today: string;
+}
+
+export const streakService = {
+  ping: async (): Promise<StreakResponse> => {
+    const res = await apiClient.post<StreakResponse>("/auth/streak/ping/");
+    return res.data;
+  },
 };
