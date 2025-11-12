@@ -9,6 +9,7 @@ from django.db import models
 
 from ai_tools.summarizer import summarize_text
 from ai_tools.quiz_generator import generate_quiz
+from ai_tools.note_improver import improve_note
 
 from .models import Note
 from .serializers import NoteSerializer
@@ -110,4 +111,55 @@ def share_note(request, note_id):
     except Note.DoesNotExist:
         return Response({"error": "Note not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
+        return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(["POST"])
+@permission_classes([IsAuthenticated])
+def improve_note_view(request, note_id):
+    """
+    Mejora/expande/corrige el contenido de una nota usando la función improve_note().
+    - Si en el body viene {"apply": true}, se sobrescribe note.content con la versión mejorada.
+    - Devuelve improved_markdown, changelog y warnings.
+    """
+    try:
+        note = Note.objects.get(id=note_id, notebook__user=request.user)
+    except Note.DoesNotExist:
+        return Response({"error": "Nota no encontrada."}, status=status.HTTP_404_NOT_FOUND)
+
+    try:
+        # Llamar a la función de IA con el contenido actual de la nota
+        res = improve_note(note.content)
+
+        improved_md = res.get("improved_markdown", "")
+        changelog = res.get("changelog", {})
+        warnings = res.get("warnings", [])
+
+        # Si el cliente pide aplicar el cambio, actualizamos note.content
+        apply_changes = request.data.get("apply", False)
+        saved = False
+        if apply_changes and improved_md:
+            try:
+                note.content = improved_md
+                # Intentamos guardar el changelog en un campo opcional 'improvement_log' si existe
+                if hasattr(note, "improvement_log"):
+                    try:
+                        note.improvement_log = changelog
+                    except Exception:
+                        # si el campo no acepta dicts, lo ignoramos para no romper
+                        pass
+                note.save(update_fields=["content"] + (["improvement_log"] if hasattr(note, "improvement_log") else []))
+                saved = True
+            except Exception as e:
+                logger.exception("No se pudo guardar la nota mejorada: %s", e)
+                return Response({"error": "No se pudo guardar la nota mejorada.", "details": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        return Response({
+            "improved_markdown": improved_md,
+            "changelog": changelog,
+            "warnings": warnings,
+            "saved": saved
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        logger.exception("Error en improve_note_view: %s", e)
         return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
