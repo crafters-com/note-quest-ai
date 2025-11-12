@@ -11,6 +11,7 @@ It powers the server-side logic for an intelligent note-taking system that integ
 
 ## Project Structure
 
+```
 backend/
 ├── ai_tools/ # AI integration modules (OpenAI)
 │ ├── summarizer.py # Generates concise summaries
@@ -40,6 +41,7 @@ backend/
 ├── settings.py # Django configuration
 ├── urls.py # Main API routing
 └── wsgi.py / asgi.py # Server entry points
+```
 
 ---
 
