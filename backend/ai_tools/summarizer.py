@@ -11,7 +11,8 @@ def summarize_text(text: str) -> str:
         return "No hay contenido para resumir."
 
     prompt = f"""
-    Resume el siguiente texto en un formato claro y conciso (máximo 5 oraciones).
+    Resume el siguiente texto en un formato claro y conciso (máximo 15 oraciones) todo debe parecer un mismo parrafo o maximo 2 parrafos si necesitas separar temas. Ten en cuenta que estos resumenes seran usados por estudiantes de universidad por lo que la claridad y entendibilidad debe ser escencial, tambien que la informacion que se de en el resumen debe ser util para examenes finales, quices y trabajos.
+    Si el tema tiene que ver con ciencias y necesitas proporcionar formulas para el entendimiento lo haras
     Texto:
     {text}
     """
