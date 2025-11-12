@@ -15,14 +15,17 @@ import UploadPage from "./pages/UploadPage";
 import { NotebookProvider } from "@/context/NotebookContext";
 import { Toaster } from "@/components/ui/Toaster";
 import UserProfilePage from "@/pages/UserProfilePage";
+import LandingPage from "@/pages/LandingPage";
 
 function App() {
   return (
     <>
       <Toaster />
       <Routes>
+        {/* Landing Page */}
+        <Route path="/" element={<LandingPage />} />
+
         {/* Rutas de Autenticación */}
-      <Route index element={<Navigate to="/login" replace />} />
       <Route element={<AuthLayout />}>
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
