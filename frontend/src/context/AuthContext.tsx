@@ -52,7 +52,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           // Ping de streak al cargar si hay sesión válida
           try {
             const streak = await streakService.ping();
-            setUser((prev) => prev ? { ...prev, ...streak } : prev);
+            setUser((prev) => {
+              if (!prev) return prev;
+              return {
+                ...prev,
+                stats: {
+                  ...(prev.stats ?? { streak_count: 0, best_streak: 0, last_active_date: null }),
+                  streak_count: streak.streak_count,
+                  best_streak: streak.best_streak,
+                  last_active_date: streak.last_active_date,
+                },
+              };
+            });
           } catch (e) {
             console.warn('No se pudo actualizar la racha al cargar:', e);
           }
@@ -78,7 +89,18 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       // Tras login exitoso, actualizar la racha
       try {
         const streak = await streakService.ping();
-        setUser((prev) => prev ? { ...prev, ...streak } : prev);
+        setUser((prev) => {
+          if (!prev) return prev;
+          return {
+            ...prev,
+            stats: {
+              ...(prev.stats ?? { streak_count: 0, best_streak: 0, last_active_date: null }),
+              streak_count: streak.streak_count,
+              best_streak: streak.best_streak,
+              last_active_date: streak.last_active_date,
+            },
+          };
+        });
       } catch (e) {
         console.warn('No se pudo actualizar la racha tras login:', e);
       }

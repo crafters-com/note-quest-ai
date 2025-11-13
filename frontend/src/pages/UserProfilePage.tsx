@@ -77,10 +77,10 @@ const UserProfilePage: React.FC = () => {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
-  // racha directa user
-  const currentStreak = user?.streak_count || 0;
-  const bestStreak = user?.best_streak || 0;
-  const lastActiveDate = user?.last_active_date || null;
+  // racha desde user.stats (nuevo backend)
+  const currentStreak = user?.stats?.streak_count || 0;
+  const bestStreak = user?.stats?.best_streak || 0;
+  const lastActiveDate = user?.stats?.last_active_date || null;
   // Sincronizar datos locales con el usuario autenticado cuando esté disponible
   useEffect(() => {
     if (!user) return;
@@ -142,6 +142,7 @@ const UserProfilePage: React.FC = () => {
       const updated = await updateUser({
         first_name,
         last_name,
+        bio: formData.bio,
         university: formData.university,
         location: formData.location,
         career: formData.career,

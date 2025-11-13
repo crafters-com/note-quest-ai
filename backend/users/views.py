@@ -9,7 +9,8 @@ from django.utils import timezone
 from datetime import timedelta
 
 from .serializers import UserSignupSerializer
-from .serializers import UserSerializer, StreakSerializer
+from .serializers import UserSerializer, UserStatsSerializer
+from .models import UserStats
 
 User = get_user_model()
 
@@ -41,9 +42,18 @@ class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        username = request.data.get("username")
+        identifier = (request.data.get("username") or request.data.get("email") or "").strip()
         password = request.data.get("password")
-        user = authenticate(username=username, password=password)
+        if not identifier or not password:
+            return Response({"error": "username/email y password son requeridos"}, status=400)
+
+        # Permitir login tanto por username como por email
+        user_obj = (
+            User.objects.filter(Q(username=identifier) | Q(email__iexact=identifier)).first()
+        )
+        login_username = user_obj.username if user_obj else identifier
+
+        user = authenticate(username=login_username, password=password)
         if not user:
             return Response({"error": "Credenciales inválidas"}, status=400)
         
@@ -80,7 +90,7 @@ def search_users(request):
     excluded_ids.add(request.user.id)
     
     # Filtrar usuarios excluyendo amigos y solicitudes pendientes
-    users = User.objects.filter(
+    users = User.objects.select_related('stats').filter(
         Q(username__icontains=query) | 
         Q(email__icontains=query)
     ).exclude(
@@ -141,34 +151,36 @@ class StreakPingView(APIView):
         today = timezone.localdate()
         yesterday = today - timedelta(days=1)
 
+        stats, _ = UserStats.objects.get_or_create(user=user)
+
         changed = False
-        if user.last_active_date is None:
-            user.streak_count = 1
-            user.last_active_date = today
+        if stats.last_active_date is None:
+            stats.streak_count = 1
+            stats.last_active_date = today
             changed = True
-        elif user.last_active_date == today:
+        elif stats.last_active_date == today:
             # No change if already active today
             pass
-        elif user.last_active_date == yesterday:
-            user.streak_count = (user.streak_count or 0) + 1
-            user.last_active_date = today
+        elif stats.last_active_date == yesterday:
+            stats.streak_count = (stats.streak_count or 0) + 1
+            stats.last_active_date = today
             changed = True
         else:
             # Missed one or more days
-            user.streak_count = 1
-            user.last_active_date = today
+            stats.streak_count = 1
+            stats.last_active_date = today
             changed = True
 
         # Update best streak if exceeded
-        if (user.best_streak or 0) < (user.streak_count or 0):
-            user.best_streak = user.streak_count
+        if (stats.best_streak or 0) < (stats.streak_count or 0):
+            stats.best_streak = stats.streak_count
             changed = True
 
         if changed:
-            user.save(update_fields=[
+            stats.save(update_fields=[
                 'streak_count', 'best_streak', 'last_active_date', 'updated_at'
             ])
 
-        data = StreakSerializer(user).data
+        data = UserStatsSerializer(stats).data
         data['today'] = str(today)
         return Response(data)

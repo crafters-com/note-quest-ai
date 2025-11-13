@@ -17,9 +17,11 @@ export interface User {
   location?: string | null;
   career?: string | null;
   academic_year?: string | null;
-  streak_count?: number;
-  best_streak?: number;
-  last_active_date?: string | null;
+  stats?: {
+    streak_count: number;
+    best_streak: number;
+    last_active_date: string | null;
+  } | null;
 }
 
 interface SignUpData {
@@ -83,6 +85,7 @@ interface UpdateUserData {
   location?: string | null;
   career?: string | null;
   academic_year?: string | null;
+  bio?: string | null;
 }
 
 const updateUser = async (data: UpdateUserData) => {
