@@ -5,21 +5,21 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
-import { Progress } from "@/components/ui/progress";
+import { Progress } from "@/components/ui/Progress";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tab";
-import { Textarea } from "@/components/ui/textarea";
+} from "@/components/ui/Select";
+import { Switch } from "@/components/ui/Switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/Tab";
+import { Textarea } from "@/components/ui/TextArea";
 import {
   Award,
   Bell,
@@ -27,6 +27,7 @@ import {
   Brain,
   Calendar,
   Camera,
+  Flame,
   Clock,
   Edit3,
   FileText,
@@ -42,135 +43,57 @@ import {
   User,
 } from "lucide-react";
 import type React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/context/AuthContext";
 import apiClient from '@/services/api';
 
-// Mock user data
-const mockUserData = {
-  id: 1,
-  name: "Paula Arroyave",
-  email: "paula.arroyave@ejemplo.com",
-  avatar: "",
-  bio: "Systems Engineering student passionate about technology and continuous learning.",
-  location: "Medellín, Colombia",
-  joinDate: "2024-01-01",
-  university: "EAFIT",
-  career: "Systems Engineering",
-  year: "3rd year",
-  stats: {
-    totalNotes: 24,
-    totalQuizzes: 12,
-    averageScore: 87,
-    studyStreak: 15,
-    totalStudyTime: 145,
-    completedQuizzes: 12,
-  favoriteSubject: "Programming",
-  },
-  achievements: [
-    {
-      id: 1,
-  name: "First Quiz",
-  description: "You completed your first quiz",
-      icon: "🎯",
-      earned: true,
-      date: "2024-01-02",
-    },
-    {
-      id: 2,
-  name: "Dedicated Student",
-  description: "15 consecutive days of studying",
-      icon: "🔥",
-      earned: true,
-      date: "2024-01-15",
-    },
-    {
-      id: 3,
-  name: "AI Expert",
-  description: "Perfect score on AI quiz",
-      icon: "🤖",
-      earned: true,
-      date: "2024-01-10",
-    },
-    {
-      id: 4,
-  name: "Collector",
-  description: "Upload 50 notes",
-      icon: "📚",
-      earned: false,
-      progress: 24,
-    },
-    {
-      id: 5,
-  name: "Quiz Master",
-  description: "Complete 25 quizzes",
-      icon: "🏆",
-      earned: false,
-      progress: 12,
-    },
-  ],
-  preferences: {
-    notifications: {
-      email: true,
-      push: true,
-      quizReminders: true,
-      studyReminders: false,
-    },
-    privacy: {
-      profilePublic: false,
-      showStats: true,
-      showAchievements: true,
-    },
-    study: {
-  defaultQuizDifficulty: "Intermediate",
-      studyReminders: true,
-      reminderTime: "18:00",
-    },
-  },
-};
-
 const UserProfilePage: React.FC = () => {
+  const { user, updateUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
-  const [userData, setUserData] = useState(mockUserData);
   const [totalNotebooks, setTotalNotebooks] = useState<number | null>(null);
   const [totalNotesAcrossNotebooks, setTotalNotesAcrossNotebooks] = useState<number | null>(null);
   const [formData, setFormData] = useState({
-    name: userData.name,
-    bio: userData.bio,
-    location: userData.location,
-    university: userData.university,
-    career: userData.career,
-    year: userData.year,
+    name: "",
+    bio: "",
+    location: "",
+    university: "",
+    career: "",
+    academic_year: "",
   });
 
+  const fullName = useMemo(() => {
+    return `${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim() || user?.username || "";
+  }, [user]);
+
+  const memberSince = useMemo(() => {
+    const raw = user?.created_at || (user as any)?.date_joined || null;
+    if (!raw) return "—";
+    const d = new Date(raw);
+    if (isNaN(d.getTime())) return "—";
+    return d.toLocaleDateString("en-US", { month: "long", year: "numeric" });
+  }, [user]);
+
   // Obtener usuario desde el contexto de autenticación
-  const { user, updateUser } = useAuth();
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
 
+  // racha desde user.stats (nuevo backend)
+  const currentStreak = user?.stats?.streak_count || 0;
+  const bestStreak = user?.stats?.best_streak || 0;
+  const lastActiveDate = user?.stats?.last_active_date || null;
   // Sincronizar datos locales con el usuario autenticado cuando esté disponible
   useEffect(() => {
     if (!user) return;
-    const fullName = `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim() || user.username;
-    setUserData((prev) => ({
-      ...prev,
-      name: fullName,
-      email: user.email ?? prev.email,
-      // Mantener resto de campos locales (bio, stats, etc.) hasta que el backend los exponga
-      university: (user as any).university ?? prev.university,
-      location: (user as any).location ?? prev.location,
-      career: (user as any).career ?? prev.career,
-      year: (user as any).academic_year ?? prev.year,
-    }));
     setFormData((prev) => ({
       ...prev,
       name: fullName,
-      university: (user as any).university ?? prev.university,
-      location: (user as any).location ?? prev.location,
-      career: (user as any).career ?? prev.career,
-      year: (user as any).academic_year ?? prev.year,
+      bio: user.bio ?? "",
+      university: (user as any).university ?? "",
+      location: (user as any).location ?? "",
+      career: (user as any).career ?? "",
+      academic_year: (user as any).academic_year ?? "",
     }));
-  }, [user]);
+  }, [user, fullName]);
 
   // Fetch user's notebooks and compute totals (use apiClient so token is included)
   useEffect(() => {
@@ -219,20 +142,15 @@ const UserProfilePage: React.FC = () => {
       const updated = await updateUser({
         first_name,
         last_name,
+        bio: formData.bio,
         university: formData.university,
         location: formData.location,
         career: formData.career,
-        academic_year: formData.year,
+        academic_year: formData.academic_year,
       });
 
       const fullName = `${updated.first_name ?? ''} ${updated.last_name ?? ''}`.trim() || updated.username;
 
-      setUserData((prev) => ({
-        ...prev,
-        ...formData,
-        name: fullName,
-        email: updated.email ?? prev.email,
-      }));
       setIsEditing(false);
     } catch (err: any) {
       console.error('Failed to save user:', err);
@@ -244,12 +162,12 @@ const UserProfilePage: React.FC = () => {
 
   const handleCancel = () => {
     setFormData({
-      name: userData.name,
-      bio: userData.bio,
-      location: userData.location,
-      university: userData.university,
-      career: userData.career,
-      year: userData.year,
+      name: user?.first_name ? `${user.first_name} ${user.last_name}`.trim() : user?.username || "",
+      bio: user?.bio ? user.bio : "",
+      location: user?.location ? user.location : "",
+      university: user?.university ? user.university : "",
+      career: user?.career ? user.career : "",
+      academic_year: user?.academic_year ? user.academic_year : "",
     });
     setIsEditing(false);
   };
@@ -262,8 +180,8 @@ const UserProfilePage: React.FC = () => {
       .toUpperCase();
   };
 
-  const earnedAchievements = userData.achievements.filter((a) => a.earned);
-  const pendingAchievements = userData.achievements.filter((a) => !a.earned);
+  // const earnedAchievements = user.achievements.filter((a) => a.earned);
+  // const pendingAchievements = user.achievements.filter((a) => !a.earned);
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -275,11 +193,14 @@ const UserProfilePage: React.FC = () => {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-1 md:grid-cols-1">
           <TabsTrigger value="profile">Profile</TabsTrigger>
+          {/** Disabled for now: stats/achievements/settings */}
+          {/**
           <TabsTrigger value="stats">Stats</TabsTrigger>
           <TabsTrigger value="achievements">Achievements</TabsTrigger>
           <TabsTrigger value="settings">Settings</TabsTrigger>
+          */}
         </TabsList>
 
         {/* Profile Tab */}
@@ -292,10 +213,10 @@ const UserProfilePage: React.FC = () => {
                   <div className="relative mx-auto">
                     <Avatar className="h-24 w-24 mx-auto">
                       <AvatarImage
-                        src={userData.avatar || "/placeholder.svg"}
+                        src={"/placeholder.svg"}
                       />
                       <AvatarFallback className="text-2xl">
-                        {getInitials(userData.name)}
+                        {getInitials(fullName || "")}
                       </AvatarFallback>
                     </Avatar>
                     <Button
@@ -307,9 +228,9 @@ const UserProfilePage: React.FC = () => {
                     </Button>
                   </div>
                   <div className="space-y-1">
-                    <h2 className="text-xl font-semibold">{userData.name}</h2>
+                    <h2 className="text-xl font-semibold">{fullName}</h2>
                     <p className="text-sm text-muted-foreground">
-                      {userData.email}
+                      {user?.email}
                     </p>
                   </div>
                 </CardHeader>
@@ -317,33 +238,27 @@ const UserProfilePage: React.FC = () => {
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center gap-2">
                       <MapPin className="h-4 w-4 text-muted-foreground" />
-                      <span>{userData.location}</span>
+                      <span>{user?.location}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />
-                      <span>
-                        Member since {" "}
-                        {new Date(userData.joinDate).toLocaleDateString(
-                          "en-US",
-                          { month: "long", year: "numeric" }
-                        )}
-                      </span>
+                      <span>Member since {memberSince}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-muted-foreground" />
-                      <span>{userData.career}</span>
+                      <span>{user?.career}</span>
                     </div>
                   </div>
 
                   <div className="pt-4 border-t">
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      {userData.bio}
+                      {user?.bio}
                     </p>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Quick Stats */}
+              {/** Quick Stats disabled until backend provides these fields reliably
               <Card className="mt-6">
                 <CardHeader>
                     <CardTitle className="text-lg">Quick Summary</CardTitle>
@@ -352,7 +267,7 @@ const UserProfilePage: React.FC = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary">
-                        {totalNotesAcrossNotebooks ?? userData.stats.totalNotes}
+                        {totalNotesAcrossNotebooks ?? user.stats.totalNotes}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         Total Notes
@@ -368,7 +283,7 @@ const UserProfilePage: React.FC = () => {
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary">
-                        {userData.stats.averageScore}%
+                        {user?.stats.averageScore}%
                       </div>
                       <div className="text-xs text-muted-foreground">
                         Average
@@ -376,7 +291,7 @@ const UserProfilePage: React.FC = () => {
                     </div>
                     <div className="text-center">
                       <div className="text-2xl font-bold text-primary">
-                        {userData.stats.studyStreak}
+                        {user?.stats.studyStreak}
                       </div>
                       <div className="text-xs text-muted-foreground">
                         Streak Days
@@ -385,6 +300,7 @@ const UserProfilePage: React.FC = () => {
                   </div>
                 </CardContent>
               </Card>
+              */}
             </div>
 
             {/* Edit Form */}
@@ -481,14 +397,14 @@ const UserProfilePage: React.FC = () => {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="year">Academic year</Label>
+                      <Label htmlFor="academic_year">Academic academic_year</Label>
                       <Input
-                        id="year"
-                        value={formData.year}
+                        id="academic_year"
+                        value={formData.academic_year}
                         onChange={(e) =>
                           setFormData((prev) => ({
                             ...prev,
-                            year: e.target.value,
+                            academic_year: e.target.value,
                           }))
                         }
                         disabled={!isEditing}
@@ -516,439 +432,26 @@ const UserProfilePage: React.FC = () => {
           </div>
         </TabsContent>
 
-        {/* Stats Tab */}
+        {/** Stats Tab disabled */}
+        {/**
         <TabsContent value="stats" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                    <FileText className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">
-                      {userData.stats.totalNotes}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Notes uploaded
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-lg bg-green-500/10 flex items-center justify-center">
-                    <HelpCircle className="h-6 w-6 text-green-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">
-                      {userData.stats.completedQuizzes}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Completed quizzes
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-lg bg-yellow-500/10 flex items-center justify-center">
-                    <Trophy className="h-6 w-6 text-yellow-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">
-                      {userData.stats.averageScore}%
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Average score
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3">
-                  <div className="h-12 w-12 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                    <Clock className="h-6 w-6 text-orange-500" />
-                  </div>
-                  <div>
-                    <p className="text-2xl font-bold">
-                      {userData.stats.totalStudyTime}h
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Study time
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-                <CardHeader>
-                <CardTitle>Study Progress</CardTitle>
-                <CardDescription>
-                  Your activity in the last 30 days
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Current streak</span>
-                    <span className="font-semibold">
-                      {userData.stats.studyStreak} days
-                    </span>
-                  </div>
-                  <Progress
-                    value={(userData.stats.studyStreak / 30) * 100}
-                    className="h-2"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span>Monthly quizzes goal</span>
-                    <span className="font-semibold">
-                      {userData.stats.completedQuizzes}/20
-                    </span>
-                  </div>
-                  <Progress
-                    value={(userData.stats.completedQuizzes / 20) * 100}
-                    className="h-2"
-                  />
-                </div>
-
-                <div className="pt-4 border-t">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Target className="h-4 w-4 text-primary" />
-                    <span>
-                      Favorite subject: {" "}
-                      <strong>{userData.stats.favoriteSubject}</strong>
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance by Subject</CardTitle>
-                <CardDescription>
-                  Average scores by study area
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {[
-                  { subject: "Programming", score: 92, color: "bg-blue-500" },
-                  { subject: "Mathematics", score: 88, color: "bg-green-500" },
-                  { subject: "Chemistry", score: 85, color: "bg-purple-500" },
-                  { subject: "Art", score: 82, color: "bg-pink-500" },
-                ].map((item) => (
-                  <div key={item.subject} className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>{item.subject}</span>
-                      <span className="font-semibold">{item.score}%</span>
-                    </div>
-                    <div className="w-full bg-muted rounded-full h-2">
-                      <div
-                        className={`h-2 rounded-full ${item.color}`}
-                        style={{ width: `${item.score}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
+          ...
         </TabsContent>
+        */}
 
-        {/* Achievements Tab */}
+        {/** Achievements Tab disabled */}
+        {/**
         <TabsContent value="achievements" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* Earned Achievements */}
-            <Card>
-                <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Award className="h-5 w-5 text-yellow-500" />
-                  Earned Achievements ({earnedAchievements.length})
-                </CardTitle>
-                <CardDescription>
-                  Celebrate your successes and milestones
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {earnedAchievements.map((achievement) => (
-                  <div
-                    key={achievement.id}
-                    className="flex items-start gap-3 p-3 rounded-lg bg-yellow-50 border border-yellow-200"
-                  >
-                    <div className="text-2xl">{achievement.icon}</div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-yellow-800">
-                        {achievement.name}
-                      </h4>
-                      <p className="text-sm text-yellow-700">
-                        {achievement.description}
-                      </p>
-                      <p className="text-xs text-yellow-600 mt-1">
-                        Earned on {" "}
-                        {new Date(achievement.date!).toLocaleDateString("en-US")}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-
-            {/* Pending Achievements */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5 text-muted-foreground" />
-                  Upcoming Achievements ({pendingAchievements.length})
-                </CardTitle>
-                <CardDescription>
-                  Goals to reach and your current progress
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {pendingAchievements.map((achievement) => (
-                  <div
-                    key={achievement.id}
-                    className="flex items-start gap-3 p-3 rounded-lg border"
-                  >
-                    <div className="text-2xl opacity-50">
-                      {achievement.icon}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-semibold">{achievement.name}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {achievement.description}
-                      </p>
-                      {achievement.progress && (
-                        <div className="mt-2 space-y-1">
-                          <div className="flex justify-between text-xs">
-                            <span>Progress</span>
-                            <span>{achievement.progress}/50</span>
-                          </div>
-                          <Progress
-                            value={(achievement.progress / 50) * 100}
-                            className="h-1"
-                          />
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
+          ...
         </TabsContent>
+        */}
 
-        {/* Settings Tab */}
+        {/** Settings Tab disabled */}
+        {/**
         <TabsContent value="settings" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-2">
-            {/* Notifications */}
-            <Card>
-                <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
-                  Notifications
-                </CardTitle>
-                <CardDescription>
-                  Configure how you'd like to receive notifications
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Email notifications</p>
-                    <p className="text-sm text-muted-foreground">
-                      Receive updates by email
-                    </p>
-                  </div>
-                  <Switch
-                    defaultChecked={userData.preferences.notifications.email}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Push notifications</p>
-                    <p className="text-sm text-muted-foreground">
-                      Real-time alerts
-                    </p>
-                  </div>
-                  <Switch
-                    defaultChecked={userData.preferences.notifications.push}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Quiz reminders</p>
-                    <p className="text-sm text-muted-foreground">
-                      We'll notify you when new quizzes are available
-                    </p>
-                  </div>
-                  <Switch
-                    defaultChecked={
-                      userData.preferences.notifications.quizReminders
-                    }
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Study reminders</p>
-                    <p className="text-sm text-muted-foreground">
-                      Keep your study streak going
-                    </p>
-                  </div>
-                  <Switch
-                    defaultChecked={
-                      userData.preferences.notifications.studyReminders
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Privacy */}
-            <Card>
-                <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Shield className="h-5 w-5" />
-                  Privacy
-                </CardTitle>
-                <CardDescription>
-                  Control visibility of your information
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Public profile</p>
-                    <p className="text-sm text-muted-foreground">
-                      Other users can see your profile
-                    </p>
-                  </div>
-                  <Switch
-                    defaultChecked={userData.preferences.privacy.profilePublic}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Show stats</p>
-                    <p className="text-sm text-muted-foreground">
-                      Share your achievements and progress
-                    </p>
-                  </div>
-                  <Switch
-                    defaultChecked={userData.preferences.privacy.showStats}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium">Show achievements</p>
-                    <p className="text-sm text-muted-foreground">
-                      Allow others to view your achievements
-                    </p>
-                  </div>
-                  <Switch
-                    defaultChecked={
-                      userData.preferences.privacy.showAchievements
-                    }
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Study Preferences */}
-            <Card>
-                <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Brain className="h-5 w-5" />
-                  Study Preferences
-                </CardTitle>
-                <CardDescription>
-                  Personalize your learning experience
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>Default quiz difficulty</Label>
-                  <Select
-                    defaultValue={
-                      userData.preferences.study.defaultQuizDifficulty
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Basic">Basic</SelectItem>
-                      <SelectItem value="Intermediate">Intermediate</SelectItem>
-                      <SelectItem value="Advanced">Advanced</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label>Reminder time</Label>
-                  <Input
-                    type="time"
-                    defaultValue={userData.preferences.study.reminderTime}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Account Actions */}
-            <Card>
-                <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Settings className="h-5 w-5" />
-                  Account
-                </CardTitle>
-                <CardDescription>Manage your account and data</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-transparent"
-                >
-                  <Mail className="mr-2 h-4 w-4" />
-                  Change password
-                </Button>
-
-                <Button
-                  variant="outline"
-                  className="w-full justify-start bg-transparent"
-                >
-                  <User className="mr-2 h-4 w-4" />
-                  Download my data
-                </Button>
-
-                <Button variant="destructive" className="w-full justify-start">
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Delete account
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+          ...
         </TabsContent>
+        */}
       </Tabs>
     </div>
   );

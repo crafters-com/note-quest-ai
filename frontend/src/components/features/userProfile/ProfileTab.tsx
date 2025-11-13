@@ -5,11 +5,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/Avatar";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
-import { Textarea } from "@/components/ui/textarea";
+import { Textarea } from "@/components/ui/TextArea";
 import { BookOpen, Calendar, Camera, Edit3, MapPin, Save } from "lucide-react";
 import type React from "react";
 import { useState } from "react";

@@ -13,17 +13,19 @@ import FriendsPage from '@/pages/FriendsPage';
 import AIToolsPage from "@/pages/AIToolsPage";
 import UploadPage from "./pages/UploadPage";
 import { NotebookProvider } from "@/context/NotebookContext";
-import { Toaster } from "@/components/ui/toaster";
+import { Toaster } from "@/components/ui/Toaster";
 import UserProfilePage from "@/pages/UserProfilePage";
-import { KahootResult } from "./components/ui/KahootResult";
+import LandingPage from "@/pages/LandingPage";
 
 function App() {
   return (
     <>
       <Toaster />
       <Routes>
+        {/* Landing Page */}
+        <Route path="/" element={<LandingPage />} />
+
         {/* Rutas de Autenticación */}
-      <Route index element={<Navigate to="/login" replace />} />
       <Route element={<AuthLayout />}>
         <Route path="login" element={<LoginPage />} />
         <Route path="signup" element={<SignupPage />} />
@@ -34,7 +36,6 @@ function App() {
         <Route element={<NotebookProvider><MainLayout /></NotebookProvider>}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="notes" element={<NotesPage />} />
-          <Route path="quizz-result" element={<KahootResult />} />
           <Route path="friends" element={<FriendsPage />} />
           <Route path="notebooks" element={<NotebooksPage />} />
           <Route path="notebooks/:notebookId/notes" element={<NoteListPage />} />

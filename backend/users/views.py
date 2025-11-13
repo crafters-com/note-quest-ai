@@ -5,9 +5,12 @@ from rest_framework.views import APIView
 from rest_framework.decorators import api_view, permission_classes
 from django.contrib.auth import authenticate, get_user_model
 from django.db.models import Q
+from django.utils import timezone
+from datetime import timedelta
 
 from .serializers import UserSignupSerializer
-from .serializers import UserSerializer
+from .serializers import UserSerializer, UserStatsSerializer
+from .models import UserStats
 
 User = get_user_model()
 
@@ -39,9 +42,18 @@ class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        username = request.data.get("username")
+        identifier = (request.data.get("username") or request.data.get("email") or "").strip()
         password = request.data.get("password")
-        user = authenticate(username=username, password=password)
+        if not identifier or not password:
+            return Response({"error": "username/email y password son requeridos"}, status=400)
+
+        # Permitir login tanto por username como por email
+        user_obj = (
+            User.objects.filter(Q(username=identifier) | Q(email__iexact=identifier)).first()
+        )
+        login_username = user_obj.username if user_obj else identifier
+
+        user = authenticate(username=login_username, password=password)
         if not user:
             return Response({"error": "Credenciales inválidas"}, status=400)
         
@@ -78,7 +90,7 @@ def search_users(request):
     excluded_ids.add(request.user.id)
     
     # Filtrar usuarios excluyendo amigos y solicitudes pendientes
-    users = User.objects.filter(
+    users = User.objects.select_related('stats').filter(
         Q(username__icontains=query) | 
         Q(email__icontains=query)
     ).exclude(
@@ -120,3 +132,55 @@ class UserDetailView(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response(serializer.data)
+
+
+class StreakPingView(APIView):
+    """Authenticated endpoint to update and return the user's streak.
+
+    Logic:
+    - If first activity: set streak_count=1.
+    - If same day: do nothing.
+    - If yesterday: increment streak_count by 1.
+    - Else (gap > 1 day): reset streak_count to 1.
+    Always update best_streak if surpassed.
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        user = request.user
+        today = timezone.localdate()
+        yesterday = today - timedelta(days=1)
+
+        stats, _ = UserStats.objects.get_or_create(user=user)
+
+        changed = False
+        if stats.last_active_date is None:
+            stats.streak_count = 1
+            stats.last_active_date = today
+            changed = True
+        elif stats.last_active_date == today:
+            # No change if already active today
+            pass
+        elif stats.last_active_date == yesterday:
+            stats.streak_count = (stats.streak_count or 0) + 1
+            stats.last_active_date = today
+            changed = True
+        else:
+            # Missed one or more days
+            stats.streak_count = 1
+            stats.last_active_date = today
+            changed = True
+
+        # Update best streak if exceeded
+        if (stats.best_streak or 0) < (stats.streak_count or 0):
+            stats.best_streak = stats.streak_count
+            changed = True
+
+        if changed:
+            stats.save(update_fields=[
+                'streak_count', 'best_streak', 'last_active_date', 'updated_at'
+            ])
+
+        data = UserStatsSerializer(stats).data
+        data['today'] = str(today)
+        return Response(data)

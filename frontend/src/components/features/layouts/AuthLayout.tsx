@@ -15,6 +15,9 @@ const WelcomeMessage = () => (
     <h2 className="text-balance text-4xl font-bold leading-tight lg:text-5xl">
       Welcome to <span className="text-primary">NoteQuest-AI</span>
     </h2>
+    <p className="text-pretty max-w-md text-lg leading-relaxed">
+      Now you will note the difference
+    </p>
     <p className="text-pretty max-w-md text-lg leading-relaxed text-muted-foreground">
       Transform your ideas into intelligent notes with the power of artificial
       intelligence. Organize, search, and connect your knowledge like never before.
