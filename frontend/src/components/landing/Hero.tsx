@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/Button"
 import { Link } from "react-router-dom"
+import dashboardImg from "@/assets/illustrations/dashboard.png";
 
 export function Hero() {
   return (
@@ -25,11 +26,12 @@ export function Hero() {
           </div>
           <div className="relative">
             <div className="aspect-video rounded-lg border border-border bg-card shadow-2xl overflow-hidden">
-              <div className="w-full h-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                <div className="text-center text-muted-foreground p-8">
-                  <p className="text-sm">Dashboard Preview</p>
-                  <p className="text-xs mt-2">Imagen del dashboard aquí</p>
-                </div>
+              <div className="w-full h-full bg-white p-6 flex items-center justify-center">
+                <img
+                  src={dashboardImg}
+                  alt="Dashboard preview"
+                  className="max-w-full max-h-full object-contain"
+                />
               </div>
             </div>
           </div>
