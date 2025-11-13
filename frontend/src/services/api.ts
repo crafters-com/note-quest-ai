@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
 
 // Use env config if provided, fallback to local dev API
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://18.215.216.97:8000';
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: BASE_URL,
