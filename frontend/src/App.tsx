@@ -15,6 +15,7 @@ import UploadPage from "./pages/UploadPage";
 import { NotebookProvider } from "@/context/NotebookContext";
 import { Toaster } from "@/components/ui/toaster";
 import UserProfilePage from "@/pages/UserProfilePage";
+import { KahootResult } from "./components/ui/KahootResult";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
         <Route element={<NotebookProvider><MainLayout /></NotebookProvider>}>
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="notes" element={<NotesPage />} />
+          <Route path="quizz-result" element={<KahootResult />} />
           <Route path="friends" element={<FriendsPage />} />
           <Route path="notebooks" element={<NotebooksPage />} />
           <Route path="notebooks/:notebookId/notes" element={<NoteListPage />} />
