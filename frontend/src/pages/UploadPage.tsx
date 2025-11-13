@@ -13,8 +13,8 @@ import {
   SelectValue,
 } from "@/components/ui/Select";
 
-const API_FILES_URL = "http://localhost:8000/api/files/";
-const API_NOTES_URL = "http://localhost:8000/api/notes/";
+const API_FILES_URL = "http://18.215.216.97:8000/api/files/";
+const API_NOTES_URL = "http://18.215.216.97:8000/api/notes/";
 
 // Componente principal
 export default function UploadPage() {

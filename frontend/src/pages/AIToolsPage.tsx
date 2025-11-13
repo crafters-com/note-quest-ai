@@ -37,7 +37,7 @@ export default function AIToolsPage() {
           return;
         }
 
-        const res = await axios.get("http://localhost:8000/api/notes/", {
+        const res = await axios.get("http://18.215.216.97:8000/api/notes/", {
           headers: { Authorization: `Token ${token}` },
         });
 

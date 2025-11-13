@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const API_URL = (import.meta.env.VITE_API_URL || 'http://localhost:8000/api/') + 'notebooks/';
+const API_URL = (import.meta.env.VITE_API_URL || 'http://18.215.216.97:8000/api/') + 'notebooks/';
 
 // Get all notebooks
 export const getNotebooks = async (token) => {

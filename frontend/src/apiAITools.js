@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8000/api";
+const BASE_URL = "http://18.215.216.97:8000/api";
 
 // Configura headers con token
 const getAuthHeaders = () => {
