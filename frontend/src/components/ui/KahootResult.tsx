@@ -1,64 +1,83 @@
 import { Play, Trophy } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/Card";
-import { Button } from "../ui/Button";
+import {   } from "../ui/Button";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/context/AuthContext";
+import { friendshipService } from "@/services/friendshipService";
 
-const mockQuestions = [
-  {
-    id: 1,
-    question: "What is JSX in React?",
-    options: [
-      "A separate programming language",
-      "A syntax extension for JavaScript",
-      "A CSS library",
-      "A backend framework",
-    ],
-    correctAnswer: 1,
-    timeLimit: 20,
-  },
-  {
-    id: 2,
-    question: "What's the correct way to create a functional component?",
-    options: [
-      "function MyComponent() { return <div>Hello</div>; }",
-      "const MyComponent = () => { return <div>Hello</div>; }",
-      "class MyComponent extends React.Component",
-      "Both A and B are correct",
-    ],
-    correctAnswer: 3,
-    timeLimit: 20,
-  },
-];
+// Scores are based on daily streak; mock questions removed.
 
-const mockPlayers = [
-  { id: 1, name: "Test1", avatar: "AG", joinedAt: Date.now() },
-  { id: 2, name: "Test2", avatar: "CL", joinedAt: Date.now() },
-  { id: 3, name: "Test3", avatar: "MT", joinedAt: Date.now() },
-  { id: 4, name: "Test4", avatar: "PR", joinedAt: Date.now() },
-];
+// Helper to get initials
+const getInitials = (name: string) => {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((n) => n[0]?.toUpperCase())
+    .join("");
+};
 
 export const KahootResult = () => {
-  const [players, setPlayers] = useState(mockPlayers);
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [playerAnswers, setPlayerAnswers] = useState<{
-    [key: number]: { answer: number; time: number };
-  }>({});
+  const { user } = useAuth();
+  const fullName = useMemo(() => {
+    const fn = [user?.first_name, user?.last_name].filter(Boolean).join(" ");
+    return fn || user?.username || "Invitado";
+  }, [user]);
+
+  const [players, setPlayers] = useState<Array<{ id: number; name: string; avatar: string; joinedAt: number; streak_count?: number; best_streak?: number }>>([]);
+
+  // Seed players with the real, logged-in user
+  useEffect(() => {
+    if (!user) return;
+    const me = {
+      id: user.id,
+      name: fullName,
+      avatar: getInitials(fullName || "?"),
+      joinedAt: Date.now(),
+      streak_count: user?.stats?.streak_count ?? 0,
+      best_streak: user?.stats?.best_streak ?? 0,
+    };
+    setPlayers([me]);
+  }, [user, fullName]);
+
+  // Load accepted friends as players as well
+  useEffect(() => {
+    if (!user) return;
+    const loadFriends = async () => {
+      try {
+        const res = await friendshipService.getFriends();
+        const friends = (res.data || []).map((fr: any) => fr.friend);
+        const playersFromFriends = friends.map((f: any) => {
+          const name = [f?.first_name, f?.last_name].filter(Boolean).join(" ") || f?.username || "Usuario";
+          return {
+            id: f.id as number,
+            name,
+            avatar: getInitials(name || f?.username || "?"),
+            joinedAt: Date.now(),
+            streak_count: f?.stats?.streak_count ?? 0,
+            best_streak: f?.stats?.best_streak ?? 0,
+          };
+        });
+        // Deduplicate by id and merge with current players
+        setPlayers((prev) => {
+          const byId = new Map<number, { id: number; name: string; avatar: string; joinedAt: number }>();
+          [...prev, ...playersFromFriends].forEach((p) => byId.set(p.id, p as any));
+          return Array.from(byId.values()) as any;
+        });
+      } catch (e) {
+        console.warn("No se pudo cargar la lista de amigos para KahootResult:", e);
+      }
+    };
+    loadFriends();
+  }, [user]);
 
   const calculateScores = () => {
     const scores: { [key: number]: number } = {};
     players.forEach((player) => {
-      let totalScore = 0;
-      mockQuestions.forEach((q, index) => {
-        if (index <= currentQuestionIndex) {
-          const answer = playerAnswers[player.id];
-          if (answer && answer.answer === q.correctAnswer) {
-            const timeBonus = Math.floor((1 - answer.time / q.timeLimit) * 500);
-            totalScore += 1000 + timeBonus;
-          }
-        }
-      });
-      scores[player.id] = totalScore;
+      const streak = player.streak_count ?? 0;
+      // Simple formula: 1000 points per day in current streak
+      scores[player.id] = streak * 1000;
     });
     return scores;
   };
@@ -78,8 +97,8 @@ export const KahootResult = () => {
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold">Game Over!</h1>
-        <p className="text-xl text-muted-foreground">Here are the winners</p>
+        <h1 className="text-4xl font-bold">Best scores</h1>
+        <p className="text-xl text-muted-foreground">Here are the best students</p>
       </div>
 
       {/* Podium */}
@@ -180,7 +199,7 @@ export const KahootResult = () => {
       </Card>
 
       {/* Actions */}
-      <div className="flex gap-4">
+      {/* <div className="flex gap-4">
         <Button variant="outline" className="flex-1 bg-transparent" asChild>
           <Link to="/quizzes">View All Quizzes</Link>
         </Button>
@@ -190,7 +209,7 @@ export const KahootResult = () => {
             New Game
           </Link>
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 };

@@ -2,17 +2,18 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from .models import Friendship
+from users.serializers import UserSerializer as FullUserSerializer
 
 User = get_user_model()
 
-class UserSerializer(serializers.ModelSerializer):
+class BasicUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'first_name', 'last_name']
 
 class FriendshipSerializer(serializers.ModelSerializer):
-    sender = UserSerializer(read_only=True)
-    receiver = UserSerializer(read_only=True)
+    sender = BasicUserSerializer(read_only=True)
+    receiver = BasicUserSerializer(read_only=True)
     receiver_id = serializers.PrimaryKeyRelatedField(
         write_only=True,
         queryset=User.objects.all(),
@@ -28,8 +29,9 @@ class FriendshipSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and hasattr(request, 'user'):
             if obj.sender == request.user:
-                return UserSerializer(obj.receiver).data
-            return UserSerializer(obj.sender).data
+                # Use the full user serializer to include nested stats
+                return FullUserSerializer(obj.receiver, context={'request': request}).data
+            return FullUserSerializer(obj.sender, context={'request': request}).data
         return None
 
     def validate(self, data):

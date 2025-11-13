@@ -1,8 +1,6 @@
 import apiClient from "./api";
 import type { AxiosResponse } from "axios";
 
-// --- Interfaces para definir la forma de los datos ---
-
 export interface User {
   id: number;
   username: string;

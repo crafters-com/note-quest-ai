@@ -67,11 +67,16 @@ const LoginForm = () => {
               <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="username"
+                name="username"
                 type="text"
                 placeholder="Your username or email"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="h-11 border-border bg-input pl-10 focus:border-primary focus:ring-ring"
+                autoComplete="username"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 required
               />
             </div>
@@ -85,11 +90,16 @@ const LoginForm = () => {
               <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 id="password"
+                name="password"
                 type={showPassword ? "text" : "password"}
                 placeholder="*********"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="h-11 border-border bg-input pl-10 pr-10 focus:border-primary focus:ring-ring"
+                autoComplete="current-password"
+                autoCapitalize="none"
+                autoCorrect="off"
+                spellCheck={false}
                 required
               />
               <Button

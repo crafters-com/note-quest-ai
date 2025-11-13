@@ -10,6 +10,7 @@ import ProtectedRoute from "@/router/ProtectedRoute";
 import NoteListPage from "@/pages/NoteListPage";
 import NoteEditorPage from "@/pages/NoteEditorPage";
 import FriendsPage from '@/pages/FriendsPage';
+import FriendProfilePage from '@/pages/FriendProfilePage';
 import AIToolsPage from "@/pages/AIToolsPage";
 import UploadPage from "./pages/UploadPage";
 import { NotebookProvider } from "@/context/NotebookContext";
@@ -37,6 +38,7 @@ function App() {
           <Route path="dashboard" element={<DashboardPage />} />
           <Route path="notes" element={<NotesPage />} />
           <Route path="friends" element={<FriendsPage />} />
+          <Route path="friends/:friendId" element={<FriendProfilePage />} />
           <Route path="notebooks" element={<NotebooksPage />} />
           <Route path="notebooks/:notebookId/notes" element={<NoteListPage />} />
           <Route path="notes/:noteId" element={<NoteEditorPage />} />

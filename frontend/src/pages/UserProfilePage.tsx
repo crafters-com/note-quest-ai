@@ -192,19 +192,6 @@ const UserProfilePage: React.FC = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-1 md:grid-cols-1">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          {/** Disabled for now: stats/achievements/settings */}
-          {/**
-          <TabsTrigger value="stats">Stats</TabsTrigger>
-          <TabsTrigger value="achievements">Achievements</TabsTrigger>
-          <TabsTrigger value="settings">Settings</TabsTrigger>
-          */}
-        </TabsList>
-
-        {/* Profile Tab */}
-        <TabsContent value="profile" className="space-y-6">
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Profile Card */}
             <div className="lg:col-span-1">
@@ -254,6 +241,33 @@ const UserProfilePage: React.FC = () => {
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       {user?.bio}
                     </p>
+                  </div>
+
+                  {/* Stats just below biography */}
+                  <div className="pt-4">
+                    <div className="grid grid-cols-3 gap-3 text-center">
+                      <div className="flex flex-col items-center">
+                        <Flame className="h-5 w-5 text-orange-500 mb-1" />
+                        <div className="text-xl font-bold">
+                          {currentStreak}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Current Streak</div>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <Trophy className="h-5 w-5 text-yellow-500 mb-1" />
+                        <div className="text-xl font-bold">
+                          {bestStreak}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Best Streak</div>
+                      </div>
+                      <div className="flex flex-col items-center">
+                        <Clock className="h-5 w-5 text-primary mb-1" />
+                        <div className="text-sm font-medium">
+                          {lastActiveDate ? new Date(lastActiveDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—'}
+                        </div>
+                        <div className="text-xs text-muted-foreground">Last Active</div>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -430,7 +444,8 @@ const UserProfilePage: React.FC = () => {
               </Card>
             </div>
           </div>
-        </TabsContent>
+
+        
 
         {/** Stats Tab disabled */}
         {/**
@@ -452,7 +467,6 @@ const UserProfilePage: React.FC = () => {
           ...
         </TabsContent>
         */}
-      </Tabs>
     </div>
   );
 };
